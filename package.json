@@ -1,7 +1,4 @@
 {
-  "dependencies": {
-    "lottie-react": "^2.4.1"
-  },
   "devDependencies": {
     "depcheck": "^1.4.7",
     "ts-prune": "^0.10.3"
