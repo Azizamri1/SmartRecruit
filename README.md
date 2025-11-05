@@ -75,3 +75,52 @@ Pre-commit hooks are configured to run linting and formatting checks before comm
 - **Frontend**: React + TypeScript + Vite
 - **Backend**: FastAPI + SQLAlchemy + PostgreSQL
 - **Components**: Barrel exports available via `src/components/index.ts`
+
+## Code Conventions
+
+### Project Structure
+```
+frontend/src/
+├── components/          # Reusable UI components
+│   ├── common/         # Shared components (Navbar, Footer, etc.)
+│   ├── admin/          # Admin-specific components
+│   ├── jobs/           # Job-related components
+│   ├── forms/          # Form components and utilities
+│   └── company/        # Company-specific components
+├── Pages/              # Page components (routes)
+├── Services/           # API service functions
+├── utils/              # Utility functions
+└── styles/             # Global styles and design tokens
+
+backend/app/
+├── routers/            # API route handlers
+├── services/           # Business logic services
+├── core/               # Core functionality (auth, middleware, etc.)
+├── utils/              # Utility functions
+└── models.py           # Database models
+```
+
+### Naming Conventions
+- **Components**: PascalCase (e.g., `JobCard`, `UserProfile`)
+- **Files**: kebab-case for components, camelCase for utilities
+- **Functions**: camelCase
+- **Constants**: UPPER_SNAKE_CASE
+- **Types**: PascalCase with descriptive names
+
+### Import Order
+1. React imports
+2. Third-party libraries
+3. Local components/utilities
+4. Relative imports (sorted alphabetically)
+
+### Code Quality
+- ESLint configured for strict TypeScript checking
+- Pre-commit hooks enforce code formatting
+- Unused code is automatically detected and removed
+- Components use barrel exports for cleaner imports
+
+### Git Workflow
+- Feature branches for new development
+- Pre-commit hooks run linting and formatting
+- Commits follow conventional format when possible
+- Regular maintenance commits for code cleanup
