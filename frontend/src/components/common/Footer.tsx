@@ -15,7 +15,7 @@ const Footer: React.FC = () => {
 
         <div className="sr-footer__social">
           <a
-            href="https://www.linkedin.com/company/smartrecruit"
+            href="https://www.linkedin.com/in/azizamri1/"
             target="_blank"
             rel="noopener noreferrer"
             className="sr-footer__social-link"
