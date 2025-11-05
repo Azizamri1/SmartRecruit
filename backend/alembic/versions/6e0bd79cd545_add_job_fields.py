@@ -1,4 +1,4 @@
-"""add_job_fields
+﻿"""add_job_fields
 
 Revision ID: 6e0bd79cd545
 Revises: ceacb6415b96
@@ -21,3 +21,4 @@ def upgrade() -> None:
 def downgrade() -> None:
     """Downgrade schema."""
     pass
+

@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import BackgroundAnimation from "../components/common/BackgroundAnimation";
 import api from "../Services/apiClient";
@@ -146,7 +146,7 @@ export default function CandidateSignup() {
             marginBottom: "20px",
             opacity: 0.8
           }}>
-            🎯
+            ðŸŽ¯
           </div>
           <h3 style={{
             fontSize: "24px",
@@ -584,3 +584,4 @@ export default function CandidateSignup() {
     </div>
   );
 }
+

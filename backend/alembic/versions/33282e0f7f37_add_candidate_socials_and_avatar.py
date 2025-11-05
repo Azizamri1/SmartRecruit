@@ -1,4 +1,4 @@
-"""Add candidate socials and avatar
+﻿"""Add candidate socials and avatar
 
 Revision ID: 33282e0f7f37
 Revises: 7f2180804bd8
@@ -24,3 +24,4 @@ def upgrade() -> None:
 def downgrade() -> None:
     op.drop_column("users", "profile_picture_url")
     op.drop_column("users", "github_url")
+

@@ -1,4 +1,4 @@
-"""unify_experience_to_single_string_field
+﻿"""unify_experience_to_single_string_field
 
 Revision ID: ceacb6415b96
 Revises: e6d743d8a2a6
@@ -61,3 +61,4 @@ def downgrade() -> None:
     op.drop_column("jobs", "location_country")
     op.drop_column("jobs", "location_city")
     op.drop_column("jobs", "company_logo_url")
+

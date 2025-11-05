@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+﻿import React, { useEffect, useRef, useState } from "react";
 import ModalPortal from "../common/ModalPortal";
 
 type Props = {
@@ -40,7 +40,7 @@ export default function RichTextModal({ title, value, onSave, onClose, placehold
   const initialized = useRef(false);
   const [local, setLocal] = useState<string>(value || "");
 
-  // ✅ INIT ONCE: put initial HTML in the editor but never overwrite during typing
+  // âœ… INIT ONCE: put initial HTML in the editor but never overwrite during typing
   useEffect(() => {
     if (!initialized.current && editorRef.current) {
       editorRef.current.innerHTML = local || "";
@@ -93,12 +93,12 @@ export default function RichTextModal({ title, value, onSave, onClose, placehold
             <button type="button" onClick={() => cmd("bold")}><b>B</b></button>
             <button type="button" onClick={() => cmd("italic")}><i>I</i></button>
             <button type="button" onClick={() => cmd("underline")}><u>U</u></button>
-            <button type="button" onClick={() => cmd("insertUnorderedList")}>• List</button>
+            <button type="button" onClick={() => cmd("insertUnorderedList")}>â€¢ List</button>
             <button type="button" onClick={() => cmd("insertOrderedList")}>1. List</button>
             <button type="button" onClick={() => {
               const url = prompt("Link URL:");
               if (url) cmd("createLink", url);
-            }}>🔗 Link</button>
+            }}>ðŸ”— Link</button>
             <button type="button" onClick={clearContent}>Clear</button>
           </div>
           <div className="rtm-body">
@@ -107,9 +107,9 @@ export default function RichTextModal({ title, value, onSave, onClose, placehold
               className="rtm-editor"
               contentEditable
               dir="ltr"
-              data-placeholder={placeholder || "Saisissez votre contenu…"}
+              data-placeholder={placeholder || "Saisissez votre contenuâ€¦"}
               style={{ direction: "ltr" }}
-              // ✅ Update state but DO NOT write back to DOM
+              // âœ… Update state but DO NOT write back to DOM
               onInput={(e) => {
                 const html = (e.target as HTMLDivElement).innerHTML;
                 setLocal(html); // state is just for Save/preview; avoid DOM writes
@@ -126,3 +126,4 @@ export default function RichTextModal({ title, value, onSave, onClose, placehold
     </ModalPortal>
   );
 }
+

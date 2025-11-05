@@ -25,7 +25,7 @@ function SkillsChips({ value, onChange }: { value: string[]; onChange: (arr: str
         {(value || []).map(v => (
           <span key={v} style={{ border: "1px solid #9CA3AF", borderRadius: 999, padding: "6px 10px", display: "inline-flex", alignItems: "center", gap: 8 }}>
             {v}
-            <button type="button" onClick={() => remove(v)} style={{ border: 0, background: "transparent", cursor: "pointer", color: "#000", fontSize: '16px', padding: '0.1em 0.1em' }} aria-label={`Remove ${v}`}>×</button>
+            <button type="button" onClick={() => remove(v)} style={{ border: 0, background: "transparent", cursor: "pointer", color: "#000", fontSize: '16px', padding: '0.1em 0.1em' }} aria-label={`Remove ${v}`}>Ã—</button>
           </span>
         ))}
       </div>
@@ -174,10 +174,10 @@ export default function AdminJobEdit() {
     }
     if (step === 4) {
         if (data.salary_min !== undefined && (isNaN(data.salary_min) || !Number.isInteger(data.salary_min) || data.salary_min < 0)) {
-            e.salary_min = "Must be an integer ≥ 0.";
+            e.salary_min = "Must be an integer â‰¥ 0.";
         }
         if (data.salary_max !== undefined && (isNaN(data.salary_max) || !Number.isInteger(data.salary_max) || data.salary_max < 0)) {
-            e.salary_max = "Must be an integer ≥ 0.";
+            e.salary_max = "Must be an integer â‰¥ 0.";
         }
         if ((data.salary_min !== undefined || data.salary_max !== undefined) && data.salary_min !== undefined && data.salary_max !== undefined && data.salary_min > data.salary_max) {
             e.salary_range = "Minimum salary must be less than or equal to maximum.";
@@ -304,7 +304,7 @@ export default function AdminJobEdit() {
   };
 
   if (loading) {
-    return <div className="pageShell"><div className="card">Loading job details…</div></div>;
+    return <div className="pageShell"><div className="card">Loading job detailsâ€¦</div></div>;
   }
 
   return (
@@ -344,14 +344,14 @@ export default function AdminJobEdit() {
             <div className="srForm__field">
               <label className="srForm__label">Employment Type</label>
               <select className="srForm__select" value={data.employment_type||""} onChange={e=>patch({employment_type:e.target.value})}>
-                <option value="">Select…</option><option>CDI</option><option>CDD</option><option>Internship</option><option>Apprenticeship</option>
+                <option value="">Selectâ€¦</option><option>CDI</option><option>CDD</option><option>Internship</option><option>Apprenticeship</option>
               </select>
               {errors.employment_type && <div className="srForm__error">{errors.employment_type}</div>}
             </div>
             <div className="srForm__field">
               <label className="srForm__label">Work mode</label>
               <select className="srForm__select" value={data.work_mode||""} onChange={e=>patch({work_mode:e.target.value})}>
-                <option value="">Select…</option><option>On-site</option><option>Remote</option><option>Hybrid</option>
+                <option value="">Selectâ€¦</option><option>On-site</option><option>Remote</option><option>Hybrid</option>
               </select>
             </div>
             <div className="srForm__field">
@@ -384,7 +384,7 @@ export default function AdminJobEdit() {
             </div>
             <div className="srForm__field">
               <label className="srForm__label">Experience</label>
-              <input className="srForm__input" placeholder="1–2 years" value={data.experience_min||""} onChange={e=>patch({experience_min:e.target.value})}/>
+              <input className="srForm__input" placeholder="1â€“2 years" value={data.experience_min||""} onChange={e=>patch({experience_min:e.target.value})}/>
             </div>
             <div className="srForm__field">
               <label className="srForm__label">Skills</label>
@@ -411,7 +411,7 @@ export default function AdminJobEdit() {
                   onClick={() => setShowCompanyOverviewEditor(true)}
                   style={{flex: 1, justifyContent: 'flex-start'}}
                 >
-                  {data.company_overview ? '✏️ Edit Company Overview' : '📝 Add Company Overview'}
+                  {data.company_overview ? 'âœï¸ Edit Company Overview' : 'ðŸ“ Add Company Overview'}
                 </button>
                 {data.company_overview && (
                   <button
@@ -420,7 +420,7 @@ export default function AdminJobEdit() {
                     onClick={() => patch({company_overview: ''})}
                     style={{padding: '8px'}}
                   >
-                    🗑️
+                    ðŸ—‘ï¸
                   </button>
                 )}
               </div>
@@ -437,7 +437,7 @@ export default function AdminJobEdit() {
                   onClick={() => setShowOfferDescriptionEditor(true)}
                   style={{flex: 1, justifyContent: 'flex-start'}}
                 >
-                  {data.offer_description ? '✏️ Edit Offer Description' : '📝 Add Offer Description'}
+                  {data.offer_description ? 'âœï¸ Edit Offer Description' : 'ðŸ“ Add Offer Description'}
                 </button>
                 {data.offer_description && (
                   <button
@@ -446,7 +446,7 @@ export default function AdminJobEdit() {
                     onClick={() => patch({offer_description: ''})}
                     style={{padding: '8px'}}
                   >
-                    🗑️
+                    ðŸ—‘ï¸
                   </button>
                 )}
               </div>
@@ -464,7 +464,7 @@ export default function AdminJobEdit() {
                   onClick={() => setShowMissionsEditor(true)}
                   style={{flex: 1, justifyContent: 'flex-start'}}
                 >
-                  {missionsHTML ? '✏️ Edit Missions' : '📝 Add Missions'}
+                  {missionsHTML ? 'âœï¸ Edit Missions' : 'ðŸ“ Add Missions'}
                 </button>
                 {missionsHTML && (
                   <button
@@ -473,7 +473,7 @@ export default function AdminJobEdit() {
                     onClick={() => { setMissions([]); setMissionsHTML(""); }}
                     style={{padding: '8px'}}
                   >
-                    🗑️
+                    ðŸ—‘ï¸
                   </button>
                 )}
               </div>
@@ -490,7 +490,7 @@ export default function AdminJobEdit() {
                   onClick={() => setShowProfileRequirementsEditor(true)}
                   style={{flex: 1, justifyContent: 'flex-start'}}
                 >
-                  {data.profile_requirements ? '✏️ Edit Profile Requirements' : '📝 Add Profile Requirements'}
+                  {data.profile_requirements ? 'âœï¸ Edit Profile Requirements' : 'ðŸ“ Add Profile Requirements'}
                 </button>
                 {data.profile_requirements && (
                   <button
@@ -499,7 +499,7 @@ export default function AdminJobEdit() {
                     onClick={() => patch({profile_requirements: ''})}
                     style={{padding: '8px'}}
                   >
-                    🗑️
+                    ðŸ—‘ï¸
                   </button>
                 )}
               </div>
@@ -589,7 +589,7 @@ export default function AdminJobEdit() {
             <div>
               <button className="srBtn srBtn--ghost" onClick={() => nav('/admin/jobs')}>Cancel</button>
               <button className="srBtn srBtn--primary" onClick={handleSubmit} disabled={saving} style={{marginLeft:12}}>
-                {saving ? 'Saving…' : 'Save Changes'}
+                {saving ? 'Savingâ€¦' : 'Save Changes'}
               </button>
             </div>
           </div>

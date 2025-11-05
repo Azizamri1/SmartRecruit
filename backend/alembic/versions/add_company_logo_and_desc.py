@@ -1,4 +1,4 @@
-"""add_company_logo_and_desc
+﻿"""add_company_logo_and_desc
 
 Revision ID: add_company_logo_and_desc
 Revises: ceacb6415b96
@@ -24,3 +24,4 @@ def upgrade() -> None:
 def downgrade() -> None:
     op.drop_column("users", "company_description")
     op.drop_column("users", "company_logo_url")
+

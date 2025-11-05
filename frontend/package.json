@@ -9,6 +9,7 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
+    "tsprune": "ts-prune --ignore 'src/vite-env.d.ts'",
     "deadcode": "ts-prune --ignore 'src/vite-env.d.ts' --error",
     "deadcode-report": "ts-prune --ignore 'src/vite-env.d.ts' > .cleanup.frontend.tsprune.txt",
     "deps-check": "depcheck --json",

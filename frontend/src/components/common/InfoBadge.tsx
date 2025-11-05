@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import "./InfoBadge.css";
 
 type Tone = "blue" | "green" | "amber" | "pink" | "gray";
@@ -24,3 +24,4 @@ export default function InfoBadge({ icon, label, value, tone = "gray", compact =
     </div>
   );
 }
+

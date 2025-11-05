@@ -1,4 +1,4 @@
-import os
+﻿import os
 import sys
 from logging.config import fileConfig
 
@@ -27,12 +27,12 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 
 # Fallback to SQLite for development (same logic as database.py)
 if not DATABASE_URL:
-    print("⚠️  No DATABASE_URL found for alembic, falling back to local SQLite database")
+    print("âš ï¸  No DATABASE_URL found for alembic, falling back to local SQLite database")
     DATABASE_URL = "sqlite:///./dev.db"
 
 # Inject URL into alembic config (preferred way)
 config.set_main_option("sqlalchemy.url", DATABASE_URL)
-print(f"🔄 Using database URL: {DATABASE_URL}")
+print(f"ðŸ”„ Using database URL: {DATABASE_URL}")
 
 # Interpret the config file for Python logging.
 if config.config_file_name is not None:
@@ -84,3 +84,4 @@ if context.is_offline_mode():
     run_migrations_offline()
 else:
     run_migrations_online()
+

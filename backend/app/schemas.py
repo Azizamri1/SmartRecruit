@@ -1,12 +1,9 @@
-import json
+from pydantic import BaseModel, Field, validator, constr, ConfigDict, field_validator, EmailStr
 from datetime import date, datetime
-from typing import List, Literal, Optional
-
-from pydantic import (BaseModel, ConfigDict, EmailStr, Field, constr,
-                      field_validator, validator)
-
+from typing import Optional, List
+from typing import Literal
+import json
 from .utils.html import sanitize_html
-
 
 # Auth/Register
 class RegisterIn(BaseModel):
@@ -16,21 +13,18 @@ class RegisterIn(BaseModel):
     last_name: Optional[str] = None
     phone: Optional[str] = None
     date_of_birth: Optional[date] = None
-    account_type: Optional[str] = None  # "candidate" | "company"
+    account_type: Optional[str] = None   # "candidate" | "company"
     company_name: Optional[str] = None
     sector: Optional[str] = None
-
 
 class TokenOut(BaseModel):
     access_token: str
     token_type: str = "bearer"
 
-
 # Auth/Login
 class LoginIn(BaseModel):
     email: str
     password: str
-
 
 # Users
 class UserOut(BaseModel):
@@ -52,13 +46,9 @@ class UserOut(BaseModel):
     linkedin_url: Optional[str] = None
     github_url: Optional[str] = None
     profile_picture_url: Optional[str] = None
-
-    class Config:
-        from_attributes = True
-
+    class Config: from_attributes = True
 
 Status = Literal["draft", "published", "archived"]
-
 
 # Jobs
 class JobBase(BaseModel):
@@ -91,12 +81,11 @@ class JobBase(BaseModel):
     deadline: Optional[date] = None
     status: Status = "published"
 
-
 class JobCreate(JobBase):
     title: constr(min_length=3, max_length=120)
     missions: List[str] = []
     skills: List[str] = []
-    status: Literal["draft", "published", "archived"] = "published"
+    status: Literal["draft","published","archived"] = "published"
     deadline: Optional[date] = None
 
     # Optional: coerce empty arrays/whitespace to clean values
@@ -122,13 +111,10 @@ class JobCreate(JobBase):
             return int(v)
         return None
 
-    @field_validator(
-        "company_overview", "offer_description", "profile_requirements", mode="before"
-    )
+    @field_validator("company_overview","offer_description","profile_requirements", mode="before")
     @classmethod
     def _sanitize_html(cls, v):
         return sanitize_html(v)
-
 
 class JobUpdate(BaseModel):
     # make everything optional in PATCH
@@ -168,17 +154,13 @@ class JobUpdate(BaseModel):
             return int(v)
         return None
 
-    @field_validator(
-        "company_overview", "offer_description", "profile_requirements", mode="before"
-    )
+    @field_validator("company_overview","offer_description","profile_requirements", mode="before")
     @classmethod
     def _sanitize_html(cls, v):
         return sanitize_html(v)
 
-
 class JobStatusUpdate(BaseModel):
-    status: Literal["draft", "published", "archived"]
-
+    status: Literal["draft","published","archived"]
 
 class JobOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)  # 👈 important for .from_orm
@@ -242,16 +224,13 @@ class JobOut(BaseModel):
         # any other type → safest fallback
         return []
 
-
 from typing import Literal
-
 
 # Applications
 class ApplicationCreate(BaseModel):
     job_id: int
     cover_letter: Optional[str] = None
     cv_id: Optional[int] = None
-
 
 class ApplicationOut(BaseModel):
     id: int
@@ -261,10 +240,8 @@ class ApplicationOut(BaseModel):
     status: Literal["pending", "accepted", "rejected"]
     score: Optional[float] = None
     applied_at: datetime
-
     class Config:
         from_attributes = True
-
 
 class MyApplicationRead(BaseModel):
     id: int
@@ -273,7 +250,6 @@ class MyApplicationRead(BaseModel):
     status: str
     score: Optional[float] = None
     applied_at: datetime
-
 
 # --- Company profile update ---
 class CompanyUpdate(BaseModel):
@@ -285,17 +261,14 @@ class CompanyUpdate(BaseModel):
     location_country: Optional[str] = Field(None, max_length=120)
     company_website: Optional[str] = None  # NEW
 
-
 # --- Account / security changes ---
 class PasswordChangeIn(BaseModel):
     current_password: str = Field(..., min_length=6)
     new_password: str = Field(..., min_length=8)
 
-
 class EmailChangeIn(BaseModel):
     password: str = Field(..., min_length=6)
     new_email: EmailStr
-
 
 # --- Candidate profile update ---
 class CandidateUpdate(BaseModel):
@@ -304,7 +277,6 @@ class CandidateUpdate(BaseModel):
     github_url: Optional[str] = None
     # you can add headline, location fields later
 
-
 # Company
 class CompanyMe(BaseModel):
     company_name: Optional[str] = None
@@ -312,22 +284,17 @@ class CompanyMe(BaseModel):
     company_description: Optional[str] = None
     sector: Optional[str] = None
 
-
 class CompanyUpdateIn(BaseModel):
     company_name: Optional[str] = None
     company_description: Optional[str] = None
     sector: Optional[str] = None
 
-
 class LogoUploadOut(BaseModel):
     company_logo_url: str
-
 
 # CV
 class CVRead(BaseModel):
     id: int
     file_path: str
     uploaded_at: datetime
-
-    class Config:
-        from_attributes = True
+    class Config: from_attributes = True

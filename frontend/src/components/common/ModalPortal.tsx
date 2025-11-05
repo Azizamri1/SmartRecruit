@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+﻿import { useEffect, useMemo } from "react";
 import { type ReactNode } from "react";
 import { createPortal } from "react-dom";
 
@@ -16,3 +16,4 @@ export default function ModalPortal({ children }: { children: ReactNode }) {
   }, [el]);
   return createPortal(children, el);
 }
+

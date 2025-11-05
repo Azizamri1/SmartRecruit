@@ -1,32 +1,21 @@
 from __future__ import annotations
 
-import os  # ensure these are imported
-import shutil
-import uuid
-
-from fastapi import (APIRouter, Depends, File, HTTPException, Request,
-                     UploadFile)
+import os, uuid, shutil  # ensure these are imported
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Request
 from sqlalchemy.orm import Session
-
+from ..deps import get_db, get_current_user
 from .. import models, schemas
-from ..deps import get_current_user, get_db
 
 router = APIRouter(prefix="/company", tags=["company"])
 
 UPLOAD_DIR = "uploads/company_logos"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
-
 @router.get("/me", response_model=schemas.UserOut)
-def get_company_profile(
-    current_user: models.User = Depends(get_current_user),
-) -> models.User:
+def get_company_profile(current_user: models.User = Depends(get_current_user)) -> models.User:
     if current_user.account_type != "company":
-        raise HTTPException(
-            status_code=403, detail="Only company accounts can access this endpoint"
-        )
+        raise HTTPException(status_code=403, detail="Only company accounts can access this endpoint")
     return current_user
-
 
 @router.patch("/me", response_model=schemas.UserOut)
 def update_company_me(
@@ -61,24 +50,19 @@ def update_company_me(
     db.refresh(user)
     return user
 
-
 @router.post("/logo", response_model=schemas.LogoUploadOut)
 def upload_company_logo(
     request: Request,
     file: UploadFile = File(...),
     current_user: models.User = Depends(get_current_user),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db)
 ) -> schemas.LogoUploadOut:
     if current_user.account_type != "company":
-        raise HTTPException(
-            status_code=403, detail="Only company accounts can access this endpoint"
-        )
+        raise HTTPException(status_code=403, detail="Only company accounts can access this endpoint")
 
     allowed_types = {"image/jpeg", "image/png", "image/jpg"}
     if file.content_type not in allowed_types:
-        raise HTTPException(
-            status_code=400, detail="Only JPEG and PNG images are allowed"
-        )
+        raise HTTPException(status_code=400, detail="Only JPEG and PNG images are allowed")
 
     file_extension = os.path.splitext(file.filename or "")[1].lower()
     unique_filename = f"{uuid.uuid4()}{file_extension}"
@@ -91,25 +75,18 @@ def upload_company_logo(
     logo_abs_url = str(request.url_for("company_logos", path=unique_filename))
 
     current_user.company_logo_url = logo_abs_url
-    db.add(current_user)
-    db.commit()
-    db.refresh(current_user)
+    db.add(current_user); db.commit(); db.refresh(current_user)
 
     return schemas.LogoUploadOut(company_logo_url=logo_abs_url)
 
-
 @router.get("/by-user/{user_id}")
 def get_company_by_user_id(user_id: int, db: Session = Depends(get_db)):
-    user = (
-        db.query(models.User)
-        .filter(models.User.id == user_id, models.User.account_type == "company")
-        .first()
-    )
+    user = db.query(models.User).filter(models.User.id == user_id, models.User.account_type == "company").first()
     if not user:
         raise HTTPException(status_code=404, detail="Company not found")
     return {
         "id": user.id,
         "name": user.company_name or "",
         "logo_url": user.company_logo_url,
-        "company_overview": user.company_description or "",
+        "company_overview": user.company_description or ""
     }

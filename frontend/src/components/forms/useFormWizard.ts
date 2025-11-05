@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+﻿import { useMemo, useState } from "react";
 
 export function useFormWizard<T extends Record<string, any>>(steps: string[], initial: T){
   const [step, setStep] = useState(0);
@@ -10,3 +10,4 @@ export function useFormWizard<T extends Record<string, any>>(steps: string[], in
   const patch = (p: Partial<T>) => setData(d => ({...d, ...p}));
   return { step, steps, pct, data, patch, next, prev, goto, isLast: step===steps.length-1 };
 }
+

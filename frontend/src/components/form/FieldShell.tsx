@@ -1,10 +1,10 @@
-import React from "react";
+﻿import React from "react";
 
 function stripHtmlToPreview(html: string, len = 160) {
   const div = document.createElement("div");
   div.innerHTML = html || "";
   const text = (div.textContent || "").trim();
-  return text.length > len ? text.slice(0, len - 1) + "…" : text;
+  return text.length > len ? text.slice(0, len - 1) + "â€¦" : text;
 }
 
 type Props = { label: string; value: string; placeholder?: string; onOpen: () => void; };
@@ -21,9 +21,10 @@ export default function FieldShell({ label, value, placeholder, onOpen }: Props)
         onClick={onOpen}
         onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onOpen(); } }}
       >
-        {value ? stripHtmlToPreview(value) : <span className="muted">{placeholder || "Cliquez pour saisir…"}</span>}
+        {value ? stripHtmlToPreview(value) : <span className="muted">{placeholder || "Cliquez pour saisirâ€¦"}</span>}
       </div>
-      <div className="hint muted">Cliquez (ou Entrée/Espace) pour éditer</div>
+      <div className="hint muted">Cliquez (ou EntrÃ©e/Espace) pour Ã©diter</div>
     </div>
   );
 }
+

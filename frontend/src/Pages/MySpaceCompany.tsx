@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+﻿import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getCompanyMe, updateCompanyMe } from "../Services/companyApi";
 import { changeEmail, changePassword } from "../Services/userApi";
@@ -116,7 +116,7 @@ export default function MySpaceCompany() {
     nav("/auth/signin");
   };
 
-  if (!me) return <div className="msc2-loading">Loading…</div>;
+  if (!me) return <div className="msc2-loading">Loadingâ€¦</div>;
 
   return (
     <section className="msc2">
@@ -153,7 +153,7 @@ export default function MySpaceCompany() {
                   : <div className="msc2-brandPh">Logo</div>}
               </div>
               <div className="msc2-idFields">
-                <div className="msc2-name">{me.company_name || "—"}</div>
+                <div className="msc2-name">{me.company_name || "â€”"}</div>
                 <div className="msc2-inline">
                   <MapPin size={16} />
                   <span>
@@ -230,7 +230,7 @@ export default function MySpaceCompany() {
 
             <div className="msc2-row">
               <button className="btn btn--primary" disabled={busy} onClick={onSaveProfile}>
-                <Save size={16}/> {busy ? "Saving…" : "Save"}
+                <Save size={16}/> {busy ? "Savingâ€¦" : "Save"}
               </button>
               <button className="btn" onClick={() => {
                 setForm({
@@ -276,7 +276,7 @@ export default function MySpaceCompany() {
               <button className="btn btn--primary" disabled={busy || !mail.password || !mail.new_email} onClick={onChangeEmail}>
                 Update email
               </button>
-              <p className="msc2-hint">You’ll need to re-login next time with the new address.</p>
+              <p className="msc2-hint">Youâ€™ll need to re-login next time with the new address.</p>
             </div>
           </div>
         )}
@@ -284,3 +284,4 @@ export default function MySpaceCompany() {
     </section>
   );
 }
+

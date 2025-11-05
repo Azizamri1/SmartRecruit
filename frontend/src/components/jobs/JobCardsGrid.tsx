@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import JobCard, { type JobCardProps } from "./JobCard";
 import "./JobCardsGrid.css";
 
@@ -17,3 +17,4 @@ export default function JobCardsGrid({ jobs, onApply, onView }: Props) {
     </div>
   );
 }
+

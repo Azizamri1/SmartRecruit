@@ -1,4 +1,4 @@
-import { apiUrl } from "./apiBase";
+﻿import { apiUrl } from "./apiBase";
 
 function getToken() {
   // adjust if you store token elsewhere
@@ -26,3 +26,4 @@ export async function viewCvPdf(cvId: number) {
   // Optional cleanup
   setTimeout(() => URL.revokeObjectURL(objectUrl), 60_000);
 }
+

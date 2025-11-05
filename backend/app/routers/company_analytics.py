@@ -1,12 +1,10 @@
-from typing import Any
-
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy import asc, case, desc, func, text
 from sqlalchemy.orm import Session
-
+from sqlalchemy import func, desc, or_, case, text, asc
+from typing import Dict, Any
+from ..deps import get_db, get_current_user
 from .. import models
-from ..deps import get_current_user, get_db
-
+from datetime import date
 
 def _ensure_company_or_admin(user: Any) -> None:
     """
@@ -17,12 +15,10 @@ def _ensure_company_or_admin(user: Any) -> None:
     if not (is_admin or account_type == "company"):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only company users or admins can access this endpoint.",
+            detail="Only company users or admins can access this endpoint."
         )
 
-
 router = APIRouter(prefix="/company/analytics", tags=["company-analytics"])
-
 
 @router.get("/summary")
 def company_summary(db: Session = Depends(get_db), user=Depends(get_current_user)):
@@ -30,9 +26,7 @@ def company_summary(db: Session = Depends(get_db), user=Depends(get_current_user
     owner_id = None if getattr(user, "is_admin", False) else user.id
 
     jobs_q = db.query(func.count(models.Job.id))
-    open_jobs_q = db.query(func.count(models.Job.id)).filter(
-        models.Job.status == "published"
-    )
+    open_jobs_q = db.query(func.count(models.Job.id)).filter(models.Job.status == "published")
     apps_q = (
         db.query(func.count(models.Application.id))
         .select_from(models.Application)
@@ -83,14 +77,7 @@ def company_summary(db: Session = Depends(get_db), user=Depends(get_current_user
     if owner_id:
         recent_q = recent_q.filter(models.Job.owner_user_id == owner_id)
     recent_apps = [
-        dict(
-            id=r.id,
-            job_id=r.job_id,
-            job_title=r.job_title,
-            applied_at=r.applied_at,
-            score=r.score,
-            status=r.status,
-        )
+        dict(id=r.id, job_id=r.job_id, job_title=r.job_title, applied_at=r.applied_at, score=r.score, status=r.status)
         for r in recent_q.all()
     ]
 
@@ -107,10 +94,7 @@ def company_summary(db: Session = Depends(get_db), user=Depends(get_current_user
     )
     if owner_id:
         top_q = top_q.filter(models.Job.owner_user_id == owner_id)
-    top_jobs = [
-        {"job_id": r.job_id, "title": r.title, "applications": int(r.apps)}
-        for r in top_q.all()
-    ]
+    top_jobs = [{"job_id": r.job_id, "title": r.title, "applications": int(r.apps)} for r in top_q.all()]
 
     scope_sql = ""
     params = {}
@@ -118,10 +102,8 @@ def company_summary(db: Session = Depends(get_db), user=Depends(get_current_user
         scope_sql = "JOIN jobs j ON j.id = a.job_id AND j.owner_user_id = :owner_id"
         params["owner_id"] = owner_id
 
-    trend_rows = (
-        db.execute(
-            text(
-                f"""
+    trend_rows = db.execute(
+        text(f"""
         WITH series AS (
           SELECT (generate_series(current_date - interval '29 days', current_date, interval '1 day'))::date AS d
         )
@@ -132,23 +114,17 @@ def company_summary(db: Session = Depends(get_db), user=Depends(get_current_user
         {scope_sql}
         GROUP BY s.d
         ORDER BY s.d
-        """
-            ),
-            params,
-        )
-        .mappings()
-        .all()
-    )
-    trend_30d = [
-        {"date": r["date"], "applications": int(r["applications"])} for r in trend_rows
-    ]
+        """),
+        params
+    ).mappings().all()
+    trend_30d = [{"date": r["date"], "applications": int(r["applications"])} for r in trend_rows]
 
     bin_expr = case(
         (models.Application.score < 20, 0),
         (models.Application.score < 40, 20),
         (models.Application.score < 60, 40),
         (models.Application.score < 80, 60),
-        else_=80,
+        else_=80
     ).label("bin")
     hist_q = (
         db.query(bin_expr, func.count(models.Application.id))
@@ -160,9 +136,9 @@ def company_summary(db: Session = Depends(get_db), user=Depends(get_current_user
     if owner_id:
         hist_q = hist_q.filter(models.Job.owner_user_id == owner_id)
     hist_rows = hist_q.all()
-    bins = [0, 20, 40, 60, 80, 100]
-    counts_map = {b: 0 for b in bins[:-1]}
-    for b, c in hist_rows:
+    bins = [0,20,40,60,80,100]
+    counts_map = {b:0 for b in bins[:-1]}
+    for b,c in hist_rows:
         counts_map[int(b)] = int(c)
     score_histogram = {"bins": bins, "counts": [counts_map[b] for b in bins[:-1]] + [0]}
 
@@ -178,7 +154,6 @@ def company_summary(db: Session = Depends(get_db), user=Depends(get_current_user
         "score_histogram": score_histogram,
     }
 
-
 @router.get("/jobs")
 def company_jobs(db: Session = Depends(get_db), user=Depends(get_current_user)):
     _ensure_company_or_admin(user)
@@ -188,35 +163,26 @@ def company_jobs(db: Session = Depends(get_db), user=Depends(get_current_user)):
         models.Job.title,
         models.Job.status,
         models.Job.deadline,
-        func.count(models.Application.id).label("apps"),
+        func.count(models.Application.id).label("apps")
     ).outerjoin(models.Application, models.Application.job_id == models.Job.id)
 
     if not getattr(user, "is_admin", False):
         q = q.filter(models.Job.owner_user_id == user.id)
 
-    q = q.group_by(
-        models.Job.id, models.Job.title, models.Job.status, models.Job.deadline
-    ).order_by(models.Job.posted_at.desc())
+    q = q.group_by(models.Job.id, models.Job.title, models.Job.status, models.Job.deadline)\
+         .order_by(models.Job.posted_at.desc())
 
     rows = q.all()
     return [
-        {
-            "id": r[0],
-            "title": r[1],
-            "status": r[2],
-            "deadline": r[3],
-            "applications": int(r[4] or 0),
-        }
+        {"id": r[0], "title": r[1], "status": r[2], "deadline": r[3], "applications": int(r[4] or 0)}
         for r in rows
     ]
 
-
 SORT_MAP = {
     "score_desc": (desc(models.Application.score), desc(models.Application.applied_at)),
-    "date_desc": (desc(models.Application.applied_at),),
-    "date_asc": (asc(models.Application.applied_at),),
+    "date_desc":  (desc(models.Application.applied_at), ),
+    "date_asc":   (asc(models.Application.applied_at), ),
 }
-
 
 @router.get("/jobs/{job_id}/applications")
 def company_job_apps(

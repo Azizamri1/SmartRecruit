@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+﻿#!/usr/bin/env python3
 from app.main import app
 
 print("Available routes:")
@@ -13,3 +13,4 @@ for r in app.routes:
         print(f"Error processing route: {e}")
 
 print("\nDone!")
+

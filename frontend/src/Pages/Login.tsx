@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+﻿import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import BackgroundAnimation from "../components/common/BackgroundAnimation";
 import {login, getMe} from "../Services/authService";
@@ -131,7 +131,7 @@ export default function Login() {
         </p>
 
         <p className="register-prompt">
-          Don’t have an account?{" "}
+          Donâ€™t have an account?{" "}
           <a
             href="/register"
             className="register-link"
@@ -144,3 +144,4 @@ export default function Login() {
     </div>
   );
 }
+

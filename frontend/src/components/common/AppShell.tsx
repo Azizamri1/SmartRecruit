@@ -1,4 +1,4 @@
-import { Outlet, useLocation } from "react-router-dom";
+﻿import { Outlet, useLocation } from "react-router-dom";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
 import BackgroundAnimation from "./BackgroundAnimation";
@@ -22,3 +22,4 @@ export default function AppShell() {
     </div>
   );
 }
+

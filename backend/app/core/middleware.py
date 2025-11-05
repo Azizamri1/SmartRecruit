@@ -1,39 +1,29 @@
 from __future__ import annotations
-
-import logging
 import time
 import uuid
 from typing import Callable
-
 from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware
+import logging
 
 logger = logging.getLogger("smartrecruit")
 _req_logger = logging.getLogger("smartrecruit.access")
 
-
 class RequestIdMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next: Callable):
         # Accept inbound X-Request-ID, check existing state, or generate one
-        rid = (
-            request.headers.get("X-Request-ID")
-            or getattr(request.state, "request_id", None)
-            or str(uuid.uuid4())
-        )
+        rid = request.headers.get("X-Request-ID") or getattr(request.state, "request_id", None) or str(uuid.uuid4())
         request.state.request_id = rid
 
         try:
             response: Response = await call_next(request)
-        except Exception:
+        except Exception as e:
             # Ensure we can correlate errors
-            logger.exception(
-                "Unhandled error",
-                extra={
-                    "request_id": rid,
-                    "path": request.url.path,
-                    "method": request.method,
-                },
-            )
+            logger.exception("Unhandled error", extra={
+                "request_id": rid,
+                "path": request.url.path,
+                "method": request.method,
+            })
             raise
 
         # Echo back for client correlation
@@ -60,27 +50,16 @@ class AccessLogMiddleware(BaseHTTPMiddleware):
             dur_ms = int((time.time() - start) * 1000)
             _req_logger.info(
                 "access",
-                extra={
-                    "request_id": rid,
-                    "ip": ip,
-                    "method": method,
-                    "path": path,
-                    "status_code": status,
-                    "duration_ms": dur_ms,
-                },
+                extra={"request_id": rid, "ip": ip, "method": method, "path": path,
+                       "status_code": status, "duration_ms": dur_ms}
             )
             response.headers["X-Request-ID"] = rid  # Echo back for clients
             return response
-        except Exception:
+        except Exception as e:
             dur_ms = int((time.time() - start) * 1000)
             _req_logger.exception(
                 "access_error",
-                extra={
-                    "request_id": rid,
-                    "ip": ip,
-                    "method": method,
-                    "path": path,
-                    "duration_ms": dur_ms,
-                },
+                extra={"request_id": rid, "ip": ip, "method": method, "path": path,
+                       "duration_ms": dur_ms}
             )
             raise

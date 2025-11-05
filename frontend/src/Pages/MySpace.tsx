@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+﻿import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import MySpaceCandidate from "./MySpaceCandidate";
 import MySpaceCompany from "./MySpaceCompany.tsx";
@@ -25,7 +25,7 @@ export default function MySpace() {
     setLoading(false);
   }, [nav]);
 
-  if (loading) return <div style={{padding:"2rem"}}>Loading…</div>;
+  if (loading) return <div style={{padding:"2rem"}}>Loadingâ€¦</div>;
 
   // Route to appropriate component based on user type
   if (userType === "candidate") {
@@ -37,3 +37,4 @@ export default function MySpace() {
   // Fallback
   return null;
 }
+

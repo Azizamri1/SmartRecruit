@@ -1,4 +1,4 @@
-export function linesToHtml(lines: string[]): string {
+﻿export function linesToHtml(lines: string[]): string {
   const clean = (lines || []).map(s => s.trim()).filter(Boolean);
   if (!clean.length) return "";
   // prefer UL if user wrote bullet items
@@ -24,3 +24,4 @@ export function htmlToLines(html: string): string[] {
     .map(s => s.trim())
     .filter(Boolean);
 }
+

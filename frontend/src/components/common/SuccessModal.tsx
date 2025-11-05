@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+﻿import React, { useEffect, useState } from "react";
 import Lottie from "lottie-react";
 
 interface SuccessModalProps {
@@ -115,3 +115,4 @@ export default function SuccessModal({ open, title, onClose, createdId, status }
     </div>
   );
 }
+

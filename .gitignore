@@ -57,3 +57,18 @@ frontend/public/uploads/
 # Local backups/history
 .history/
 _backup_gemini_rollback_*/
+
+# TypeScript build info
+frontend/tsconfig.*.tsbuildinfo
+
+# Database
+backend/dev.db
+backend/*.db
+
+# Archive directories
+backend/_archive/
+frontend/_archive/
+
+# Temporary/cleanup files
+.cleanup.*
+*.ps1

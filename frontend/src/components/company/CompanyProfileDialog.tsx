@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import InfoBadge from "../common/InfoBadge";
 import "./CompanyProfileDialog.css";
 
@@ -46,3 +46,4 @@ export default function CompanyProfileDialog({ open, onClose, name, logo, overvi
     </div>
   );
 }
+

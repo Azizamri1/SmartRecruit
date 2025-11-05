@@ -1,17 +1,17 @@
-import { Link, NavLink, useNavigate } from "react-router-dom";
+﻿import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import "./Navbar.css";
 
 type User = {
   full_name?: string;
-  username?: string;     // ⬅ add (backend may or may not send it)
-  email?: string;        // ⬅ add (fallback)
+  username?: string;     // â¬… add (backend may or may not send it)
+  email?: string;        // â¬… add (fallback)
   is_admin?: boolean;
   account_type?: "admin" | "company" | "candidate";
   company_name?: string | null;
 };
 
-// ⬇️ add this helper (top-level, above the component)
+// â¬‡ï¸ add this helper (top-level, above the component)
 function computeDisplayName(u: User | null): string {
   if (!u) return "";
 
@@ -49,7 +49,7 @@ export default function Navbar() {
   const isCompany = user?.account_type === "company";
   const isAdmin = !!user?.is_admin;
 
-  const displayName = computeDisplayName(user); // ⬅ derive once
+  const displayName = computeDisplayName(user); // â¬… derive once
 
   const logout = () => {
     localStorage.removeItem("token");
@@ -61,7 +61,7 @@ export default function Navbar() {
     <header className="sr-nav">
       <div className="sr-nav__left">
         <Link to="/jobs" className="brand">
-          <img src="/tt-logo.svg" alt="Tunisie Télécom" />
+          <img src="/tt-logo.svg" alt="Tunisie TÃ©lÃ©com" />
           <span>SmartRecruit</span>
         </Link>
 
@@ -107,7 +107,7 @@ export default function Navbar() {
                 )}
 
                 <button className="auth-item" onClick={logout}>
-                  Déconnexion
+                  DÃ©connexion
                 </button>
               </div>
             )}
@@ -128,3 +128,4 @@ export default function Navbar() {
     </header>
   );
 }
+

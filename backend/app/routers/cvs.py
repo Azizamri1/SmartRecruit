@@ -1,17 +1,15 @@
 # file: backend/app/routers/cvs.py
-from datetime import datetime, timezone
-from pathlib import Path
-from uuid import uuid4
-
-from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
+from pathlib import Path
+from uuid import uuid4
+from datetime import datetime, timezone
 
 from .. import models, schemas
-from ..deps import get_current_user, get_db
+from ..deps import get_db, get_current_user
 
 router = APIRouter(prefix="/cvs", tags=["cvs"])
-
 
 @router.post("", response_model=schemas.CVRead)  # final path: POST /cvs
 async def upload_cv(
@@ -27,9 +25,7 @@ async def upload_cv(
 
     suffix = Path(file.filename or "").suffix.lower()
     if suffix not in {".pdf", ".docx", ".txt"}:
-        raise HTTPException(
-            status_code=400, detail="Only PDF, DOCX or TXT files are accepted"
-        )
+        raise HTTPException(status_code=400, detail="Only PDF, DOCX or TXT files are accepted")
 
     # 2) deterministic name & path
     out_name = f"{current_user.id}_{uuid4().hex}{suffix}"
@@ -53,9 +49,7 @@ async def upload_cv(
             dest_path.unlink(missing_ok=True)
         except Exception:
             pass
-        raise HTTPException(
-            status_code=400, detail="Uploaded file is empty or unreadable"
-        )
+        raise HTTPException(status_code=400, detail="Uploaded file is empty or unreadable")
 
     # 5) normalize for DB
     stored_path = str(dest_path).replace("\\", "/")
@@ -71,22 +65,15 @@ async def upload_cv(
     db.refresh(cv)
     return cv
 
-
 @router.get("/current", response_model=schemas.CVRead)  # final path: GET /cvs/current
 async def get_current_cv(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user),
 ):
-    cv = (
-        db.query(models.CV)
-        .filter(models.CV.user_id == current_user.id)
-        .order_by(models.CV.uploaded_at.desc())
-        .first()
-    )
+    cv = db.query(models.CV).filter(models.CV.user_id == current_user.id).order_by(models.CV.uploaded_at.desc()).first()
     if not cv:
         raise HTTPException(status_code=404, detail="No CV found")
     return cv
-
 
 @router.get("/{cv_id}/download")  # final path: GET /cvs/{cv_id}/download
 async def download_cv(
@@ -94,11 +81,7 @@ async def download_cv(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user),
 ):
-    cv = (
-        db.query(models.CV)
-        .filter(models.CV.id == cv_id, models.CV.user_id == current_user.id)
-        .first()
-    )
+    cv = db.query(models.CV).filter(models.CV.id == cv_id, models.CV.user_id == current_user.id).first()
     if not cv:
         raise HTTPException(status_code=404, detail="CV not found")
     p = Path(cv.file_path)

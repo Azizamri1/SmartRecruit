@@ -1,4 +1,4 @@
-"""add user location city country
+﻿"""add user location city country
 
 Revision ID: add_user_location_city_country
 Revises: ceacb6415b96
@@ -28,3 +28,4 @@ def upgrade() -> None:
 def downgrade() -> None:
     op.drop_column("users", "location_country")
     op.drop_column("users", "location_city")
+

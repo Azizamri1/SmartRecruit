@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+﻿import { Link } from "react-router-dom";
 import BackgroundAnimation from "../components/common/BackgroundAnimation";
 
 export default function Register() {
@@ -38,7 +38,7 @@ export default function Register() {
             marginBottom: "20px",
             opacity: 0.8
           }}>
-            🏢
+            ðŸ¢
           </div>
           <h3 style={{
             fontSize: "24px",
@@ -137,7 +137,7 @@ export default function Register() {
                 minHeight: "64px"
               }}
             >
-              <span style={{ fontSize: "24px" }}>👤</span>
+              <span style={{ fontSize: "24px" }}>ðŸ‘¤</span>
               <div style={{ textAlign: "center" }}>
                 <div>Individual Account</div>
                 <div style={{ fontSize: "12px", opacity: 0.9, marginTop: "2px" }}>For job seekers</div>
@@ -164,7 +164,7 @@ export default function Register() {
                 minHeight: "64px"
               }}
             >
-              <span style={{ fontSize: "24px" }}>🏢</span>
+              <span style={{ fontSize: "24px" }}>ðŸ¢</span>
               <div style={{ textAlign: "center" }}>
                 <div>Company Account</div>
                 <div style={{ fontSize: "12px", opacity: 0.9, marginTop: "2px" }}>For employers</div>
@@ -203,3 +203,4 @@ export default function Register() {
     </div>
   );
 }
+

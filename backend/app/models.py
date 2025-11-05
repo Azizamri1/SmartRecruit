@@ -1,10 +1,7 @@
-from sqlalchemy import (Boolean, Column, Date, DateTime, Float, ForeignKey,
-                        Integer, String, Text, UniqueConstraint, text)
-from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy import Column, Integer, String, Text, Boolean, Date, DateTime, ForeignKey, Float, text, UniqueConstraint
 from sqlalchemy.orm import relationship
-
+from sqlalchemy.dialects.postgresql import JSONB
 from .database import Base
-
 
 class User(Base):
     __tablename__ = "users"
@@ -16,7 +13,7 @@ class User(Base):
     last_name = Column(String, nullable=True)
     phone = Column(String, nullable=True)
     date_of_birth = Column(Date, nullable=True)
-    account_type = Column(String, nullable=True)  # "candidate" | "company"
+    account_type = Column(String, nullable=True)   # "candidate" | "company"
     company_name = Column(String, nullable=True)
     company_logo_url = Column(Text, nullable=True)
     company_description = Column(Text, nullable=True)
@@ -31,11 +28,8 @@ class User(Base):
     profile_picture_url = Column(Text, nullable=True)
     created_at = Column(DateTime(timezone=True))
 
-    applications = relationship(
-        "Application", back_populates="user", cascade="all,delete"
-    )
+    applications = relationship("Application", back_populates="user", cascade="all,delete")
     cvs = relationship("CV", back_populates="user", cascade="all,delete")
-
 
 class Job(Base):
     __tablename__ = "jobs"
@@ -66,11 +60,13 @@ class Job(Base):
     missions = Column(
         JSONB(astext_type=Text()),  # ensures ORM returns Python types
         nullable=False,
-        server_default=text("'[]'::jsonb"),
+        server_default=text("'[]'::jsonb")
     )
     profile_requirements = Column(Text, nullable=True)
     skills = Column(
-        JSONB(astext_type=Text()), nullable=False, server_default=text("'[]'::jsonb")
+        JSONB(astext_type=Text()),
+        nullable=False,
+        server_default=text("'[]'::jsonb")
     )
 
     description = Column(Text, nullable=True)
@@ -80,52 +76,37 @@ class Job(Base):
     status = Column(Text, nullable=False, server_default="published")
 
     posted_at = Column(DateTime(timezone=True), nullable=True)
-    created_at = Column(
-        DateTime(timezone=True), nullable=False, server_default=text("now()")
-    )
-    updated_at = Column(
-        DateTime(timezone=True),
-        nullable=False,
-        server_default=text("now()"),
-        onupdate=text("now()"),
-    )
+    created_at = Column(DateTime(timezone=True), nullable=False, server_default=text('now()'))
+    updated_at = Column(DateTime(timezone=True), nullable=False, server_default=text('now()'), onupdate=text('now()'))
 
     owner_user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
     owner = relationship("User", foreign_keys=[owner_user_id])
 
-    applications = relationship(
-        "Application", back_populates="job", cascade="all,delete"
-    )
-
+    applications = relationship("Application", back_populates="job", cascade="all,delete")
 
 class Application(Base):
     __tablename__ = "applications"
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(
-        Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False
-    )
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     job_id = Column(Integer, ForeignKey("jobs.id", ondelete="CASCADE"), nullable=False)
     cover_letter = Column(Text, nullable=True)
     cv_id = Column(Integer, ForeignKey("cvs.id"), nullable=False)
     status = Column(String, nullable=False, default="pending")
     score = Column(Float, nullable=True)
-    applied_at = Column(DateTime(timezone=True), server_default=text("now()"))
+    applied_at = Column(DateTime(timezone=True), server_default=text('now()'))
 
     user = relationship("User", back_populates="applications")
     job = relationship("Job", back_populates="applications")
 
     # Unique constraint to prevent duplicate applications per user-job pair
     __table_args__ = (
-        UniqueConstraint("user_id", "job_id", name="unique_user_job_application"),
+        UniqueConstraint('user_id', 'job_id', name='unique_user_job_application'),
     )
-
 
 class CV(Base):
     __tablename__ = "cvs"
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(
-        Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False
-    )
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     file_path = Column(String, nullable=False)
     uploaded_at = Column(DateTime(timezone=True))
 

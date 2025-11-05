@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+﻿import React, { useState, useEffect } from "react";
 import BackgroundAnimation from "../components/common/BackgroundAnimation";
 import AnalyticsSummary from "../components/admin/AnalyticsSummary";
 import CompanyApplicationsTable from "../components/admin/CompanyApplicationsTable";
@@ -72,3 +72,4 @@ export default function AdminApplications() {
     </div>
   );
 }
+

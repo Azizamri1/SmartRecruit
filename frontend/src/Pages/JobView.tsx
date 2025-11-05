@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+﻿import { useEffect, useMemo, useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { getJob, type JobDetail } from "../Services/jobsApi";
 import { getCompanyByUserId, type PublicCompany } from "../Services/companyApi";
@@ -26,7 +26,7 @@ const joinLocation = (city?: string | null, country?: string | null) =>
 const buildSalaryText = (j: any) => {
   if (!j) return "";
   if (j.salary_is_confidential) return "Confidentiel";
-  if (j.salary_min && j.salary_max) return `${j.salary_min}–${j.salary_max} ${j.salary_currency || ""}`.trim();
+  if (j.salary_min && j.salary_max) return `${j.salary_min}â€“${j.salary_max} ${j.salary_currency || ""}`.trim();
   if (j.salary_min) return `${j.salary_min} ${j.salary_currency || ""}`.trim();
   if (j.salary_max) return `${j.salary_max} ${j.salary_currency || ""}`.trim();
   return "";
@@ -122,7 +122,7 @@ export default function JobView() {
     if (job.salary_is_confidential) return "Confidential";
     const min = fmtMoney(job.salary_min, job.salary_currency);
     const max = fmtMoney(job.salary_max, job.salary_currency);
-    if (min && max) return `${min} – ${max}`;
+    if (min && max) return `${min} â€“ ${max}`;
     return min || max || "Not specified";
   }, [job]);
 
@@ -192,8 +192,8 @@ export default function JobView() {
           <InfoBadge
             tone="blue"
             compact
-            label="Expérience"
-            value={job?.experience_min || "—"}
+            label="ExpÃ©rience"
+            value={job?.experience_min || "â€”"}
             icon={<Clock aria-hidden />}
           />
 
@@ -202,7 +202,7 @@ export default function JobView() {
             tone="green"
             compact
             label="Type d'emploi"
-            value={job?.employment_type || "—"}
+            value={job?.employment_type || "â€”"}
             icon={<Briefcase aria-hidden />}
           />
 
@@ -211,7 +211,7 @@ export default function JobView() {
             tone="amber"
             compact
             label="Mode de travail"
-            value={job?.work_mode || "—"}
+            value={job?.work_mode || "â€”"}
             icon={<Globe aria-hidden />}
           />
 
@@ -219,8 +219,8 @@ export default function JobView() {
           <InfoBadge
             tone="pink"
             compact
-            label="Niveau d'étude"
-            value={job?.education_level || "—"}
+            label="Niveau d'Ã©tude"
+            value={job?.education_level || "â€”"}
             icon={<GraduationCap aria-hidden />}
           />
 

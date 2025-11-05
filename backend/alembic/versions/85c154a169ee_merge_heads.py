@@ -1,4 +1,4 @@
-"""merge heads
+﻿"""merge heads
 
 Revision ID: 85c154a169ee
 Revises: 70bdac6cbef1, add_company_website, add_unique_constraint_user_job_application, add_user_location_city_country
@@ -28,3 +28,4 @@ def upgrade() -> None:
 def downgrade() -> None:
     """Downgrade schema."""
     pass
+

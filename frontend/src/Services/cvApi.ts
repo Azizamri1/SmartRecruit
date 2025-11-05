@@ -1,4 +1,4 @@
-import api from "./apiClient";
+﻿import api from "./apiClient";
 
 export async function getCurrentCV() {
   const { data } = await api.get("/cvs/current"); // returns latest or 404/null
@@ -11,3 +11,4 @@ export async function uploadCV(file: File) {
   const { data } = await api.post("/cvs", fd);
   return data as { id: number; file_path: string; uploaded_at: string };
 }
+

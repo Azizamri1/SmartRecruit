@@ -1,4 +1,4 @@
-import api from "./apiClient";
+﻿import api from "./apiClient";
 
 export type JobDetail = {
   id: number;
@@ -55,3 +55,4 @@ export const mapJob = (job: any): JobDetail => ({
   salary_min: toNum(job.salary_min),
   salary_max: toNum(job.salary_max),
 });
+

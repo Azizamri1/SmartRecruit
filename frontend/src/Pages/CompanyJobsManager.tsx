@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+﻿import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { Upload, Archive, Trash2, Pencil, ClipboardList, FileText, Package } from 'lucide-react';
 import {
@@ -68,7 +68,7 @@ export default function CompanyJobsManager() {
   // Typewriter animation for title
   const { displayText: animatedTitle } = useTypewriter('Job Management', 100);
 
-  // load all lists once (small volumes per your notes) → drives badges
+  // load all lists once (small volumes per your notes) â†’ drives badges
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -255,7 +255,7 @@ export default function CompanyJobsManager() {
           <div style={{ position: "relative" }}>
             <input
               className="input"
-              placeholder="🔍 Search jobs..."
+              placeholder="ðŸ” Search jobs..."
               value={query}
               onChange={e => setQuery(e.target.value)}
               style={{
@@ -366,7 +366,7 @@ export default function CompanyJobsManager() {
             fontSize: "14px",
             fontWeight: "500"
           }}>
-            <span style={{ fontSize: "16px" }}>✓</span>
+            <span style={{ fontSize: "16px" }}>âœ“</span>
             <strong style={{ color: "#ffffff" }}>{selected.size}</strong>
             job{selected.size > 1 ? 's' : ''} selected
           </div>
@@ -445,7 +445,7 @@ export default function CompanyJobsManager() {
       {/* Content */}
       <div className="card" style={{ marginTop: 12, background: "rgb(255 255 255 / 88%)" }}>
         {loading ? (
-          <div className="skeleton">Loading…</div>
+          <div className="skeleton">Loadingâ€¦</div>
         ) : filtered.length === 0 ? (
           <EmptyState
             title={query ? "No results" : tab === "published" ? "No published jobs yet" : tab === "draft" ? "No drafts yet" : "No archived jobs"}
@@ -475,7 +475,7 @@ export default function CompanyJobsManager() {
                   </div></td>
                   <td className="muted" style={{ color: '#666' }}><div className="cell">
                     {[j.location_city, j.location_country].filter(Boolean).join(", ")}
-                    { (j.employment_type || j.work_mode) && <><br/>{[j.employment_type, j.work_mode].filter(Boolean).join(" • ")}</> }
+                    { (j.employment_type || j.work_mode) && <><br/>{[j.employment_type, j.work_mode].filter(Boolean).join(" â€¢ ")}</> }
                   </div></td>
                   <td style={{ color: '#000' }}><div className="cell">
                     <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
@@ -508,3 +508,4 @@ function EmptyState({ title, subtitle, cta }:{ title:string; subtitle?:string; c
     </div>
   );
 }
+

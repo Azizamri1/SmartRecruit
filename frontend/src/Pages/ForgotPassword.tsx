@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import BackgroundAnimation from "../components/common/BackgroundAnimation";
 import { forgotPassword } from "../Services/authService";
@@ -193,3 +193,4 @@ export default function ForgotPassword() {
     </div>
   );
 }
+

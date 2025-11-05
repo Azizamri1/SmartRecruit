@@ -1,4 +1,4 @@
-"""baseline schema 2025-10-09
+﻿"""baseline schema 2025-10-09
 
 Revision ID: 86614ed6b155
 Revises:
@@ -97,3 +97,4 @@ def downgrade() -> None:
     op.drop_index(op.f("ix_jobs_id"), table_name="jobs")
     op.drop_table("jobs")
     # ### end Alembic commands ###
+

@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 
 type Props = { children: React.ReactNode, fallback?: React.ReactNode };
 type State = { hasError: boolean, msg?: string };
@@ -23,3 +23,4 @@ export default class ErrorBoundary extends React.Component<Props, State> {
     return this.props.children;
   }
 }
+

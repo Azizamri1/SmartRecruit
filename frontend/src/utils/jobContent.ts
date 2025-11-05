@@ -1,4 +1,4 @@
-export function htmlToMissionItems(html: string): string[] {
+﻿export function htmlToMissionItems(html: string): string[] {
   if (!html || !html.trim()) return [];
   const container = document.createElement("div");
   container.innerHTML = html;
@@ -18,5 +18,6 @@ export function previewText(html: string, len = 160): string {
   const div = document.createElement("div");
   div.innerHTML = html || "";
   const text = (div.textContent || "").trim();
-  return text.length > len ? text.slice(0, len - 1) + "…" : text;
+  return text.length > len ? text.slice(0, len - 1) + "â€¦" : text;
 }
+

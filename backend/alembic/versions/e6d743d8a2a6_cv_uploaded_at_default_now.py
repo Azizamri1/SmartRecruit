@@ -1,4 +1,4 @@
-"""cv uploaded_at default now
+﻿"""cv uploaded_at default now
 
 Revision ID: e6d743d8a2a6
 Revises: 86614ed6b155
@@ -34,3 +34,4 @@ def downgrade() -> None:
         server_default=None,
         existing_nullable=True,
     )
+

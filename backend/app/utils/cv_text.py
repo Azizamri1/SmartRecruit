@@ -1,14 +1,11 @@
 """
 Text extraction utilities for CV/resume processing
 """
-
 import os
-import re
 from pathlib import Path
-
-from docx import Document
 from pypdf import PdfReader
-
+from docx import Document
+import re
 
 def extract_text_from_file(file_path: str) -> str:
     """
@@ -22,16 +19,15 @@ def extract_text_from_file(file_path: str) -> str:
 
     file_lower = file_path.lower()
 
-    if file_lower.endswith(".pdf"):
+    if file_lower.endswith('.pdf'):
         return _extract_pdf_text(file_path)
-    if file_lower.endswith(".docx"):
+    if file_lower.endswith('.docx'):
         return _extract_docx_text(file_path)
-    if file_lower.endswith(".txt"):
+    if file_lower.endswith('.txt'):
         return _extract_txt_text(file_path)
     raise ValueError(
         f"Unsupported file type: {os.path.basename(file_path)}. Supported types: PDF, DOCX, TXT"
     )
-
 
 def _extract_pdf_text(file_path: str) -> str:
     reader = PdfReader(file_path)
@@ -41,7 +37,6 @@ def _extract_pdf_text(file_path: str) -> str:
         if t.strip():
             parts.append(t)
     return "\n".join(parts)
-
 
 def _extract_docx_text(file_path: str) -> str:
     doc = Document(file_path)
@@ -56,19 +51,13 @@ def _extract_docx_text(file_path: str) -> str:
                     parts.append(cell.text)
     return "\n".join(parts)
 
-
 def _extract_txt_text(file_path: str) -> str:
-    with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
+    with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
         return f.read()
-
 
 # Heuristic: collapse sequences of single letters like "R e a c t" -> "React"
 # Keeps numbers/emails/URLs intact.
-_SPACED_LETTERS_RE = re.compile(
-    r"(?:\b[a-zA-Z]\s){4,}[a-zA-Z]\b"
-)  # ≥5 letters with spaces
-
-
+_SPACED_LETTERS_RE = re.compile(r"(?:\b[a-zA-Z]\s){4,}[a-zA-Z]\b")  # ≥5 letters with spaces
 def _fix_spaced_letters(text: str) -> str:
     def _join_run(run: str) -> str:
         # run like "R e a c t" -> "React"
@@ -83,12 +72,11 @@ def _fix_spaced_letters(text: str) -> str:
             out.append(text[i:])
             break
         # append chunk before match
-        out.append(text[i : m.start()])
+        out.append(text[i:m.start()])
         # replace the matched run
         out.append(_join_run(m.group(0)))
         i = m.end()
     return "".join(out)
-
 
 def clean_extracted_text(text: str) -> str:
     """
@@ -99,13 +87,12 @@ def clean_extracted_text(text: str) -> str:
     # collapse whitespace
     text = " ".join(text.split())
     # remove non-printable (keep basic punctuation)
-    text = re.sub(r"[^\w\s.,!?-]", " ", text)
+    text = re.sub(r'[^\w\s.,!?-]', ' ', text)
     # normalize spaces again
     text = " ".join(text.split())
     # NEW: de-space letter-by-letter artifacts
     text = _fix_spaced_letters(text)
     return text.strip()
-
 
 def get_file_info(file_path: str) -> dict:
     if not os.path.exists(file_path):
@@ -113,14 +100,13 @@ def get_file_info(file_path: str) -> dict:
     stat = os.stat(file_path)
     _, ext = os.path.splitext(file_path)
     return {
-        "path": file_path,
-        "filename": os.path.basename(file_path),
-        "extension": ext.lower(),
-        "size_bytes": stat.st_size,
-        "size_kb": round(stat.st_size / 1024, 2),
-        "modified_time": stat.st_mtime,
+        'path': file_path,
+        'filename': os.path.basename(file_path),
+        'extension': ext.lower(),
+        'size_bytes': stat.st_size,
+        'size_kb': round(stat.st_size / 1024, 2),
+        'modified_time': stat.st_mtime,
     }
-
 
 def preview_text(text: str, max_length: int = 500) -> str:
     if not text:

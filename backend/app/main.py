@@ -1,17 +1,14 @@
 # app/main.py
-import os
-
-from app import models
-from app.config import settings
-from app.database import engine
-from app.routers import (admin_analytics, applications, auth, company,
-                         company_analytics, cvs, jobs, users)
-from app.services.ai_service import ai_service, compute_deterministic_score
-from app.services.ai_service import warmup as warmup_ai
-from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+import os
+from dotenv import load_dotenv
 
+from app import models
+from app.database import engine
+from app.config import settings
+from app.routers import auth, users, jobs, cvs, applications, admin_analytics, company_analytics, company
+from app.services.ai_service import ai_service, warmup as warmup_ai, compute_deterministic_score
 from .core.logging import setup_logging
 
 load_dotenv()
@@ -24,7 +21,6 @@ setup_logging(debug=getattr(settings, "DEBUG", False))
 
 app = FastAPI(title="Job Matching API")
 
-
 @app.on_event("startup")
 def _warm_models():
     try:
@@ -32,13 +28,10 @@ def _warm_models():
     except Exception as e:
         # don't block startup on warmup issues
         import logging
-
         logging.getLogger("smartrecruit").warning("warmup_failed", exc_info=e)
 
-
 if getattr(settings, "ENABLE_REQUEST_LOGS", True):
-    from .core.middleware import AccessLogMiddleware, RequestIdMiddleware
-
+    from .core.middleware import RequestIdMiddleware, AccessLogMiddleware
     app.add_middleware(RequestIdMiddleware)
     app.add_middleware(AccessLogMiddleware)
 
@@ -49,9 +42,7 @@ default_origins = [
 ]
 # Optionally override with comma-separated ORIGINS in .env
 env_origins = os.getenv("CORS_ORIGINS")
-origins = (
-    [o.strip() for o in env_origins.split(",")] if env_origins else default_origins
-)
+origins = [o.strip() for o in env_origins.split(",")] if env_origins else default_origins
 
 app.add_middleware(
     CORSMiddleware,
@@ -73,28 +64,20 @@ app.include_router(company.router)
 
 # --- Static files ---
 import os
-
 from fastapi.staticfiles import StaticFiles
-
 if not os.path.exists("uploads"):
     os.makedirs("uploads")
 if not os.path.exists("uploads/company_logos"):
     os.makedirs("uploads/company_logos")
 if not os.path.exists("uploads/avatars"):
     os.makedirs("uploads/avatars")
-app.mount(
-    "/static/company_logos",
-    StaticFiles(directory="uploads/company_logos"),
-    name="company_logos",
-)
+app.mount("/static/company_logos", StaticFiles(directory="uploads/company_logos"), name="company_logos")
 app.mount("/static/avatars", StaticFiles(directory="uploads/avatars"), name="avatars")
-
 
 # --- Simple health check ---
 @app.get("/health")
 def health():
     return {"status": "ok"}
-
 
 # --- Detailed health check ---
 @app.get("/healthz")
@@ -105,7 +88,6 @@ def healthz():
     try:
         # model load
         from app.services.ai_service import get_bi_encoder
-
         _ = get_bi_encoder()
         # micro inference
         _ = compute_deterministic_score("ping", "pong")
@@ -117,11 +99,10 @@ def healthz():
         "status": "ok" if ok else "error",
         "services": {
             "database": "ok",  # Assume DB is ok if we get here
-            "ai_service": "ok" if ai_ok else "error",
+            "ai_service": "ok" if ai_ok else "error"
         },
-        "email_config_present": bool(getattr(settings, "SMTP_SERVER", None)),
+        "email_config_present": bool(getattr(settings, "SMTP_SERVER", None))
     }
-
 
 # --- AI warmup endpoint ---
 @app.post("/ai/warmup")
@@ -129,27 +110,26 @@ def warmup_ai():
     """Warm up AI models by loading them into memory"""
     try:
         # Force loading of AI models
-        ai_service.get_embedding("warmup test text")
+        test_emb = ai_service.get_embedding("warmup test text")
         print("AI models warmed up successfully")
         return {"message": "AI models warmed up successfully"}
     except Exception as e:
         print(f"Failed to warm up AI models: {e}")
         return {"error": f"Failed to warm up AI models: {str(e)}"}
 
-
 # --- Email test endpoint ---
 @app.post("/test-email")
 async def test_email():
     """Test email functionality with hardcoded values"""
     from app.services.email_service import send_status_email
-
     try:
         await send_status_email(
-            recipient="henrylone18@gmail.com", status="accepted", full_name="Test User"
+            recipient="henrylone18@gmail.com",
+            status="accepted",
+            full_name="Test User"
         )
         return {"message": "Email sent successfully"}
     except Exception as e:
         import traceback
-
         error_details = traceback.format_exc()
         return {"error": str(e), "traceback": error_details}

@@ -1,4 +1,4 @@
-import api from "./apiClient";
+﻿import api from "./apiClient";
 
 export async function changePassword(current_password: string, new_password: string) {
   const { data } = await api.post("/users/me/change-password", { current_password, new_password });
@@ -30,3 +30,4 @@ export async function uploadAvatar(file: File): Promise<{ profile_picture_url: s
   const { data } = await api.post("/users/me/avatar", fd);
   return data;
 }
+

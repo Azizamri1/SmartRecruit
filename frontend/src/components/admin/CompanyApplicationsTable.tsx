@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+﻿import { useEffect, useMemo, useState } from "react";
 import {
   fetchAdminJobs,
   fetchAdminJobApplications,
@@ -10,7 +10,7 @@ import {
 import "./CompanyApplicationsTable.css";
 
 function formatStatusLabel(s?: string | null) {
-  return s ? s.replace(/_/g, " ") : "—";
+  return s ? s.replace(/_/g, " ") : "â€”";
 }
 function statusMod(s?: string | null) {
   return s && s.trim() ? s : "pending";
@@ -168,7 +168,7 @@ export default function CompanyApplicationsTable() {
             onChange={(e) => setSelectedJobId(e.target.value ? Number(e.target.value) : null)}
             className="input"
           >
-            {jobs.length === 0 && <option value="">— No jobs —</option>}
+            {jobs.length === 0 && <option value="">â€” No jobs â€”</option>}
             {jobs.map((j) => (
               <option key={j.id} value={j.id}>
                 {j.title} {j.status ? `(${j.status})` : ""}
@@ -190,8 +190,8 @@ export default function CompanyApplicationsTable() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <label style={{ color: 'rgba(255,255,255,0.8)', fontSize: '13px', fontWeight: '500' }}>Sort:</label>
           <select value={sort} onChange={(e) => setSort(e.target.value as SortKey)} className="input">
-            <option value="score_desc">Score: high → low</option>
-            <option value="score_asc">Score: low → high</option>
+            <option value="score_desc">Score: high â†’ low</option>
+            <option value="score_asc">Score: low â†’ high</option>
           </select>
         </div>
 
@@ -206,7 +206,7 @@ export default function CompanyApplicationsTable() {
               opacity: selectedIds.length === 0 ? 0.5 : 1
             }}
           >
-            ✓ Accept ({selectedIds.length})
+            âœ“ Accept ({selectedIds.length})
           </button>
           <button
             className="btn"
@@ -218,7 +218,7 @@ export default function CompanyApplicationsTable() {
               opacity: selectedIds.length === 0 ? 0.5 : 1
             }}
           >
-            ✗ Reject ({selectedIds.length})
+            âœ— Reject ({selectedIds.length})
           </button>
         </div>
       </div>
@@ -266,7 +266,7 @@ export default function CompanyApplicationsTable() {
             </div>
             <div style={{ fontWeight: '600', color: '#0072bc' }}>#{a.id}</div>
             <div style={{ fontWeight: '600', color: a.score && a.score > 70 ? '#1db954' : a.score && a.score > 40 ? '#f2c744' : '#ff4d4f' }}>
-              {a.score == null ? "—" : `${a.score}%`}
+              {a.score == null ? "â€”" : `${a.score}%`}
             </div>
             <div style={{ fontWeight: '500' }}>{a.job_title}</div>
             <div>
@@ -275,7 +275,7 @@ export default function CompanyApplicationsTable() {
               </span>
             </div>
             <div style={{ whiteSpace: "nowrap", fontSize: '13px', color: 'rgba(255,255,255,0.7)' }}>
-              {a.applied_at ? new Date(a.applied_at).toLocaleDateString() : "—"}
+              {a.applied_at ? new Date(a.applied_at).toLocaleDateString() : "â€”"}
             </div>
             <div className="btnRow">
               <button
@@ -287,7 +287,7 @@ export default function CompanyApplicationsTable() {
                 }}
                 onClick={() => onRowStatusChange(a.id, "accepted")}
               >
-                ✓ Accept
+                âœ“ Accept
               </button>
               <button
                 className="btn"
@@ -298,7 +298,7 @@ export default function CompanyApplicationsTable() {
                 }}
                 onClick={() => onRowStatusChange(a.id, "rejected")}
               >
-                ✗ Reject
+                âœ— Reject
               </button>
             </div>
           </div>
@@ -309,3 +309,4 @@ export default function CompanyApplicationsTable() {
     </div>
   );
 }
+

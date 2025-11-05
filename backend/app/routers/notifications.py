@@ -1,16 +1,14 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import EmailStr
-
 from ..services.email_service import send_status_email
 
 router = APIRouter()
-
 
 @router.post("/test/email")
 async def test_email(
     recipient: EmailStr = "test@example.com",
     status: str = "accepted",
-    full_name: str = "Test User",
+    full_name: str = "Test User"
 ):
     """
     Test email functionality by sending a status email.

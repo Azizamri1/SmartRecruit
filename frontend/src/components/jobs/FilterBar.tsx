@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import FilterModal from "./FilterModal";
 import JobCount from "./JobCount";
 
@@ -6,9 +6,9 @@ export type Filters = { type: string[]; gov: string[]; mode: string[]; specialty
 const empty: Filters = { type:[], gov:[], mode:[], specialty:[] };
 
 const PRESETS = {
-  type: ["CDI","CDD","Stage","Freelance","CIVP","Intérim"],
+  type: ["CDI","CDD","Stage","Freelance","CIVP","IntÃ©rim"],
   gov: ["Tunis","Ariana","Ben Arous","Manouba","Sfax","Sousse"],
-  mode: ["Télétravail complet","Hybride","Présentiel"],
+  mode: ["TÃ©lÃ©travail complet","Hybride","PrÃ©sentiel"],
   specialty: ["IT","Marketing","Ventes","RH","Finance"]
 };
 
@@ -33,8 +33,8 @@ export default function FilterBar({
       <div className="filterBar">
         {btn("type","Type Contrat")}
         {btn("gov","Gouvernorat")}
-        {btn("mode","Télétravail")}
-        {btn("specialty","Spécialités")}
+        {btn("mode","TÃ©lÃ©travail")}
+        {btn("specialty","SpÃ©cialitÃ©s")}
         {count !== undefined && <JobCount count={count} />}
       </div>
 
@@ -43,7 +43,7 @@ export default function FilterBar({
           title={
             open==="type" ? "Type Contrat" :
             open==="gov" ? "Gouvernorat" :
-            open==="mode" ? "Télétravail" : "Spécialités"
+            open==="mode" ? "TÃ©lÃ©travail" : "SpÃ©cialitÃ©s"
           }
           options={PRESETS[open]}
           selected={value[open]}
@@ -55,3 +55,4 @@ export default function FilterBar({
     </>
   );
 }
+

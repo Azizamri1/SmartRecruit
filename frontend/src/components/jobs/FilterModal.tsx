@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+﻿import { useMemo, useState } from "react";
 import "./FilterModal.css";
 
 export default function FilterModal({
@@ -29,7 +29,7 @@ export default function FilterModal({
       <div className="fm-card" onClick={e=>e.stopPropagation()}>
         <header className="fm-header">
           <h3>{title}</h3>
-          <button className="fm-close" onClick={onClose}>✕</button>
+          <button className="fm-close" onClick={onClose}>âœ•</button>
         </header>
 
         <div className="fm-search">
@@ -53,3 +53,4 @@ export default function FilterModal({
     </div>
   );
 }
+

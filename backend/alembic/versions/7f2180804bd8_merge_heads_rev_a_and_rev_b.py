@@ -1,4 +1,4 @@
-"""merge heads REV_A and REV_B
+﻿"""merge heads REV_A and REV_B
 
 Revision ID: 7f2180804bd8
 Revises: 03eb0c5a16bf, add_cover_letter_and_cv_id_to_applications
@@ -26,3 +26,4 @@ def upgrade() -> None:
 def downgrade() -> None:
     """Downgrade schema."""
     pass
+

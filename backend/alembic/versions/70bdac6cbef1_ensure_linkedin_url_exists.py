@@ -1,4 +1,4 @@
-"""Ensure linkedin_url exists
+﻿"""Ensure linkedin_url exists
 
 Revision ID: 70bdac6cbef1
 Revises: 33282e0f7f37
@@ -27,3 +27,4 @@ def downgrade() -> None:
     op.execute("ALTER TABLE users DROP COLUMN IF EXISTS linkedin_url;")
     op.execute("ALTER TABLE users DROP COLUMN IF EXISTS github_url;")
     op.execute("ALTER TABLE users DROP COLUMN IF EXISTS profile_picture_url;")
+

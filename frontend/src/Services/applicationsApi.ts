@@ -1,4 +1,4 @@
-import api from "./apiClient";
+﻿import api from "./apiClient";
 
 export type AdminJob = {
   id: number;
@@ -88,3 +88,4 @@ export async function debugScore(cv_id: number, job_id: number) {
     preview?: string;
   };
 }
+

@@ -1,4 +1,4 @@
-"""add_cover_letter_and_cv_id_to_applications
+﻿"""add_cover_letter_and_cv_id_to_applications
 
 Revision ID: add_cover_letter_and_cv_id_to_applications
 Revises: add_company_logo_and_desc
@@ -33,3 +33,4 @@ def downgrade() -> None:
     op.drop_constraint("fk_applications_cv_id_cvs", "applications", type_="foreignkey")
     op.drop_column("applications", "cv_id")
     op.drop_column("applications", "cover_letter")
+

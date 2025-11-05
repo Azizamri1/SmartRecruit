@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+﻿import { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import SRMultiStep, { SRSection } from "../components/forms/SRMultiStep";
 import { useFormWizard } from "../components/forms/useFormWizard";
@@ -316,11 +316,11 @@ export default function ApplicationForm() {
                 <h4 style={{ margin: '0 0 12px 0', color: 'rgba(255,255,255,0.9)' }}>CV Upload</h4>
                 {currentCv ? (
                   <div style={{ color: '#1db954', fontWeight: '500' }}>
-                    ✓ CV uploaded: {currentCv.file_path.split("/").pop()}
+                    âœ“ CV uploaded: {currentCv.file_path.split("/").pop()}
                   </div>
                 ) : (
                   <div style={{ color: '#ff6b6b', fontWeight: '500' }}>
-                    ⚠ No CV uploaded yet
+                    âš  No CV uploaded yet
                   </div>
                 )}
                 <label className="cv-upload-btn" style={{
@@ -417,3 +417,4 @@ export default function ApplicationForm() {
     </>
   );
 }
+

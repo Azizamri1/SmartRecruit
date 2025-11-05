@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from "react";
+﻿import React, { useMemo, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { toAbsoluteMedia } from "../../Services/media";
 import "./JobCard.css";
@@ -71,11 +71,11 @@ export default function JobCard(props: JobCardProps){
     if (hasMin && hasMax) {
       return `${salary_min} - ${salary_max} ${currency}`;
     } else if (hasMin) {
-      return `≥ ${salary_min} ${currency}`;
+      return `â‰¥ ${salary_min} ${currency}`;
     } else if (hasMax) {
-      return `≤ ${salary_max} ${currency}`;
+      return `â‰¤ ${salary_max} ${currency}`;
     } else {
-      return "Salaire non spécifié";
+      return "Salaire non spÃ©cifiÃ©";
     }
   }, [salary_min, salary_max, salary_currency, salary_is_confidential]);
 
@@ -99,16 +99,16 @@ export default function JobCard(props: JobCardProps){
 
       {/* Info grid (always 2 columns) */}
       <div className="jobCard__facts jobCard__facts--tj">
-        {fact("Expérience", experience_min ?? "—")}
-        {fact("Type d'emploi", employment_type ?? "—")}
-        {fact("Mode de travail", work_mode ?? "—")}
-        {fact("Rémunération", salary)}
+        {fact("ExpÃ©rience", experience_min ?? "â€”")}
+        {fact("Type d'emploi", employment_type ?? "â€”")}
+        {fact("Mode de travail", work_mode ?? "â€”")}
+        {fact("RÃ©munÃ©ration", salary)}
       </div>
 
-      {/* Compétences section title like TuniJobs */}
-      {!!(skills?.length) && <div className="jobCard__sectionTitle">Compétences</div>}
+      {/* CompÃ©tences section title like TuniJobs */}
+      {!!(skills?.length) && <div className="jobCard__sectionTitle">CompÃ©tences</div>}
 
-      {/* Skills (≤3 + +N) */}
+      {/* Skills (â‰¤3 + +N) */}
       {!!(skills?.length) && (
         <ul className="jlSkills">
           {skills.slice(0,3).map((s,i)=><li key={i} className="jlSkill">{s}</li>)}
@@ -119,14 +119,14 @@ export default function JobCard(props: JobCardProps){
       {/* Dates + buttons */}
       <div className="jobCard__footer">
         <div className="jobCard__dates jobCard__dates--tj">
-          <span>Publié: {posted_at ? new Date(posted_at).toLocaleDateString() : "—"}</span>
-          <span>Modifié: {updated_at ? new Date(updated_at).toLocaleDateString() : "—"}</span>
+          <span>PubliÃ©: {posted_at ? new Date(posted_at).toLocaleDateString() : "â€”"}</span>
+          <span>ModifiÃ©: {updated_at ? new Date(updated_at).toLocaleDateString() : "â€”"}</span>
         </div>
         <div className="jobCard__actions jobCard__actions--tj">
-          <Link className="jlBtn jlBtn--outlineTeal" to={`/jobs/${id}`}>🛈&nbsp; Voir l'offre</Link>
+          <Link className="jlBtn jlBtn--outlineTeal" to={`/jobs/${id}`}>ðŸ›ˆ&nbsp; Voir l'offre</Link>
           {has_applied ? (
             <span className="jlBtn jlBtn--applied" aria-disabled="true">
-              ✓&nbsp; Postulé
+              âœ“&nbsp; PostulÃ©
             </span>
           ) : (
             <a
@@ -134,7 +134,7 @@ export default function JobCard(props: JobCardProps){
               href={user && !isCompany ? `/apply/${id}` : !user ? '/auth/signin' : undefined}
               {...(isCompany ? { 'aria-disabled': true, style: { pointerEvents: 'none', opacity: 0.5, cursor: 'not-allowed' } } : {})}
             >
-              ✈︎&nbsp; Postuler
+              âœˆï¸Ž&nbsp; Postuler
             </a>
           )}
         </div>

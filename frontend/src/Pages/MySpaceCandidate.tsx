@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+﻿import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getMe, patchMe, uploadAvatar } from "../Services/userApi";
 import { getCurrentCV, uploadCV } from "../Services/cvApi";
@@ -110,7 +110,7 @@ export default function MySpaceCandidate() {
     nav("/auth/signin");
   };
 
-  if (!me) return <div className="msc2-loading">Loading…</div>;
+  if (!me) return <div className="msc2-loading">Loadingâ€¦</div>;
 
   return (
     <section className="msc2">
@@ -199,7 +199,7 @@ export default function MySpaceCandidate() {
             </div>
             <div className="msc2-row">
               <button className="btn btn--primary" disabled={busy} onClick={onSaveProfile}>
-                <Save size={16}/> {busy ? "Saving…" : "Save"}
+                <Save size={16}/> {busy ? "Savingâ€¦" : "Save"}
               </button>
             </div>
           </div>
@@ -275,3 +275,4 @@ export default function MySpaceCandidate() {
     </section>
   );
 }
+

@@ -1,20 +1,16 @@
-import re
+from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
+from sqlalchemy.orm import Session
+from sqlalchemy.exc import IntegrityError
+from ..database import SessionLocal
+from ..utils.cv_text import extract_text_from_file, clean_extracted_text
+from ..services.ai_service import score_cv_to_job, score_components, parse_profile_requirements
+# import relative
+from ..deps import get_db, get_current_user
+from .. import models, schemas
 from datetime import datetime, timezone
 from pathlib import Path
-
-from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
-from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import Session
-
-from .. import models, schemas
-from ..database import SessionLocal
-# import relative
-from ..deps import get_current_user, get_db
-from ..services.ai_service import (parse_profile_requirements,
-                                   score_components, score_cv_to_job)
-from ..services.email_service import send_email, tpl_decision, tpl_submission
-from ..utils.cv_text import clean_extracted_text, extract_text_from_file
-
+import re
+from ..services.email_service import send_email, tpl_submission, tpl_decision
 
 # helper to normalize any shape -> list[str]
 def _as_list(value):
@@ -31,7 +27,6 @@ def _as_list(value):
     # unknown types -> stringified single item
     return [str(value).strip()] if str(value).strip() else []
 
-
 def _resolve_cv_full_path(file_path: str) -> Path:
     """
     Normalize and absolutize the stored CV path so pypdf gets a real file.
@@ -43,11 +38,10 @@ def _resolve_cv_full_path(file_path: str) -> Path:
     p = Path(normalized)
     if not p.is_absolute():
         # base dir: two parents up from this file => project backend/ root
-        base_dir = Path(__file__).resolve().parents[2]  # (app/routers/..) -> backend/
+        base_dir = Path(__file__).resolve().parents[2]   # (app/routers/..) -> backend/
         p = (base_dir / normalized).resolve()
 
     return p
-
 
 def background_compute_and_save_score(db_session_factory, app_id: int) -> None:
     db: Session = db_session_factory()
@@ -80,38 +74,30 @@ def background_compute_and_save_score(db_session_factory, app_id: int) -> None:
         skills_txt = " ".join(sorted(set(job.skills or [])))
         missions_txt = " ".join(sorted(set(job.missions or [])))
 
-        job_text = " ".join(
-            filter(
-                None,
-                [
-                    job.title,
-                    job.offer_description,
-                    job.description,
-                    f"Skills: {skills_txt}" if skills_txt else "",
-                    f"Missions: {missions_txt}" if missions_txt else "",
-                    job.profile_requirements or "",
-                ],
-            )
-        )
+        job_text = " ".join(filter(None, [
+            job.title,
+            job.offer_description,
+            job.description,
+            f"Skills: {skills_txt}" if skills_txt else "",
+            f"Missions: {missions_txt}" if missions_txt else "",
+            job.profile_requirements or "",
+        ]))
 
         # Parse profile_requirements WITH job.skills context
-        parsed = parse_profile_requirements(
-            job.profile_requirements or "", job_skills=(job.skills or [])
-        )
+        parsed = parse_profile_requirements(job.profile_requirements or "", job_skills=(job.skills or []))
 
-        skills = list(sorted(set(job.skills or [])))
+        skills   = list(sorted(set(job.skills or [])))
 
         # For requirements, include:
         #  - missions (FR lines will match after accent fold)
         requirements = list(sorted(set((job.missions or [])))) + parsed["must_haves"]
 
-        profile = parsed["profile"]
-        langs = parsed["languages"]
-        musts = parsed["must_haves"]  # tech-only musts now
+        profile  = parsed["profile"]
+        langs    = parsed["languages"]
+        musts    = parsed["must_haves"]   # tech-only musts now
 
         score = score_cv_to_job(
-            cv_text,
-            job_text,
+            cv_text, job_text,
             skills=skills,
             requirements=requirements,
             profile=profile,
@@ -125,22 +111,15 @@ def background_compute_and_save_score(db_session_factory, app_id: int) -> None:
     finally:
         db.close()
 
-
 router = APIRouter(prefix="/applications", tags=["applications"])
 
-
 @router.post("", response_model=schemas.ApplicationOut)
-def create_application(
-    payload: schemas.ApplicationCreate,
-    background: BackgroundTasks,
-    db: Session = Depends(get_db),
-    user=Depends(get_current_user),
-):
+def create_application(payload: schemas.ApplicationCreate,
+                       background: BackgroundTasks,
+                       db: Session = Depends(get_db),
+                       user=Depends(get_current_user)):
     # Only candidates apply (admins optional)
-    if not (
-        getattr(user, "account_type", None) == "candidate"
-        or getattr(user, "is_admin", False)
-    ):
+    if not (getattr(user, "account_type", None) == "candidate" or getattr(user, "is_admin", False)):
         raise HTTPException(403, "Only candidates can apply")
 
     job = db.query(models.Job).get(payload.job_id)
@@ -157,7 +136,7 @@ def create_application(
         cover_letter=payload.cover_letter,
         cv_id=payload.cv_id,
         status="pending",
-        applied_at=datetime.now(timezone.utc),
+        applied_at=datetime.now(timezone.utc)
     )
     try:
         db.add(app)
@@ -181,7 +160,6 @@ def create_application(
         print("[EMAIL][submission] enqueue failed:", e)
 
     return app
-
 
 @router.get("/me", response_model=list[schemas.MyApplicationRead])
 def my_applications(db: Session = Depends(get_db), user=Depends(get_current_user)):
@@ -211,15 +189,10 @@ def my_applications(db: Session = Depends(get_db), user=Depends(get_current_user
         for r in rows
     ]
 
-
 @router.patch("/{application_id}/status")
-def update_application_status(
-    application_id: int,
-    payload: dict,
-    background: BackgroundTasks,
-    db: Session = Depends(get_db),
-    user=Depends(get_current_user),
-):
+def update_application_status(application_id: int, payload: dict,
+                              background: BackgroundTasks,
+                              db: Session = Depends(get_db), user=Depends(get_current_user)):
     """
     Body: { "status": "accepted" | "rejected" }
     Only job owner or admin can change status. Sends decision email.
@@ -254,14 +227,9 @@ def update_application_status(
 
     return {"id": app.id, "status": app.status}
 
-
 @router.post("/_debug/score", tags=["admin"])
-def debug_score(
-    cv_id: int,
-    job_id: int,
-    db: Session = Depends(get_db),
-    current_user: models.User = Depends(get_current_user),
-):
+def debug_score(cv_id: int, job_id: int, db: Session = Depends(get_db),
+                current_user: models.User = Depends(get_current_user)):
     if not getattr(current_user, "is_admin", False):
         raise HTTPException(403, "Admin only")
 
@@ -273,35 +241,27 @@ def debug_score(
     skills_txt = " ".join(sorted(set(job.skills or [])))
     missions_txt = " ".join(sorted(set(job.missions or [])))
 
-    job_text = " ".join(
-        filter(
-            None,
-            [
-                job.title,
-                job.offer_description,
-                job.description,
-                f"Skills: {skills_txt}" if skills_txt else "",
-                f"Missions: {missions_txt}" if missions_txt else "",
-                job.profile_requirements or "",
-            ],
-        )
-    )
+    job_text = " ".join(filter(None, [
+        job.title,
+        job.offer_description,
+        job.description,
+        f"Skills: {skills_txt}" if skills_txt else "",
+        f"Missions: {missions_txt}" if missions_txt else "",
+        job.profile_requirements or "",
+    ]))
 
-    parsed = parse_profile_requirements(
-        job.profile_requirements or "", job_skills=(job.skills or [])
-    )
+    parsed = parse_profile_requirements(job.profile_requirements or "", job_skills=(job.skills or []))
 
-    skills = list(sorted(set(job.skills or [])))
-    missions = list(sorted(set(job.missions or [])))
-    profile = parsed["profile"]
-    musts = parsed["must_haves"]
-    langs = parsed["languages"]
+    skills       = list(sorted(set(job.skills or [])))
+    missions     = list(sorted(set(job.missions or [])))
+    profile      = parsed["profile"]
+    musts        = parsed["must_haves"]
+    langs        = parsed["languages"]
 
     comps = score_components(
-        cv_text,
-        job_text,
+        cv_text, job_text,
         skills=skills,
-        requirements=(missions + musts),  # both lists now
+        requirements=(missions + musts),   # both lists now
         profile=profile,
         languages=langs,
         must_haves=musts,

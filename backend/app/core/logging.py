@@ -1,9 +1,7 @@
 from __future__ import annotations
-
 import json
 import logging
 import sys
-
 
 class JsonFormatter(logging.Formatter):
     def format(self, record: logging.LogRecord) -> str:
@@ -14,28 +12,11 @@ class JsonFormatter(logging.Formatter):
         }
         # attach extras
         for key, value in getattr(record, "__dict__", {}).items():
-            if key in (
-                "args",
-                "msg",
-                "levelno",
-                "levelname",
-                "name",
-                "created",
-                "msecs",
-                "relativeCreated",
-                "exc_info",
-                "exc_text",
-                "stack_info",
-                "lineno",
-                "pathname",
-                "filename",
-                "module",
-                "funcName",
-                "thread",
-                "threadName",
-                "processName",
-                "process",
-            ):
+            if key in ("args", "msg", "levelno", "levelname", "name",
+                       "created", "msecs", "relativeCreated", "exc_info",
+                       "exc_text", "stack_info", "lineno", "pathname",
+                       "filename", "module", "funcName", "thread",
+                       "threadName", "processName", "process"):
                 continue
             if key not in base:
                 base[key] = value
@@ -43,7 +24,6 @@ class JsonFormatter(logging.Formatter):
         if record.exc_info:
             base["exc_info"] = self.formatException(record.exc_info)
         return json.dumps(base, ensure_ascii=False)
-
 
 def setup_logging(debug: bool = False):
     level = logging.DEBUG if debug else logging.INFO
@@ -57,13 +37,8 @@ def setup_logging(debug: bool = False):
     root.addHandler(handler)
 
     # Our loggers
-    for name in (
-        "smartrecruit",
-        "smartrecruit.access",
-        "smartrecruit.audit",
-        "smartrecruit.email",
-        "smartrecruit.security",
-    ):
+    for name in ("smartrecruit", "smartrecruit.access", "smartrecruit.audit",
+                 "smartrecruit.email", "smartrecruit.security"):
         lg = logging.getLogger(name)
         lg.propagate = True
         lg.setLevel(level)

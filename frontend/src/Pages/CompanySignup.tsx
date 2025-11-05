@@ -5,14 +5,14 @@ import api from "../Services/apiClient";
 
 export const SECTEURS = [
   "Informatique / IT",
-  "Télécoms",
+  "TÃ©lÃ©coms",
   "Banque / Finance",
   "Assurance",
-  "Santé",
+  "SantÃ©",
   "Industrie",
   "Commerce / Distribution",
   "Services",
-  "Éducation / Formation",
+  "Ã‰ducation / Formation",
   "Marketing / Communication",
   "Autre",
 ];
@@ -138,7 +138,7 @@ export default function CompanySignup() {
             marginBottom: "20px",
             opacity: 0.8
           }}>
-            🚀
+            ðŸš€
           </div>
           <h3 style={{
             fontSize: "24px",

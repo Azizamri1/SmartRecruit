@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
+﻿import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { useState } from "react";
 import AppShell from "./components/common/AppShell";
@@ -51,7 +51,7 @@ export default function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
 
-        {/* 🔹 TuniJobs-like auth paths (aliases) */}
+        {/* ðŸ”¹ TuniJobs-like auth paths (aliases) */}
         <Route path="/auth/signin" element={<Login />} />
         <Route path="/candidate/signup" element={<CandidateSignup />} />
         <Route path="/company/signup" element={<CompanySignup />} />
@@ -112,3 +112,4 @@ export default function App() {
     </BrowserRouter>
   );
 }
+

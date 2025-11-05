@@ -1,4 +1,4 @@
-"""Add company_website to users table
+﻿"""Add company_website to users table
 
 Revision ID: add_company_website
 Revises: ceacb6415b96
@@ -22,3 +22,4 @@ def upgrade() -> None:
 
 def downgrade() -> None:
     op.drop_column("users", "company_website")
+

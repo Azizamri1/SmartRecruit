@@ -1,4 +1,4 @@
-import apiClient from "./apiClient";
+﻿import apiClient from "./apiClient";
 
 export type CompanyMe = {
   id: number;
@@ -57,7 +57,7 @@ export interface PublicCompany {
 
 export async function getCompanyByUserId(userId: number): Promise<PublicCompany | null> {
   try {
-    // ✅ match your backend: singular "company"
+    // âœ… match your backend: singular "company"
     const { data } = await apiClient.get(`/company/by-user/${userId}`);
     return data;
   } catch (e) {
@@ -65,3 +65,4 @@ export async function getCompanyByUserId(userId: number): Promise<PublicCompany 
     return null;
   }
 }
+

@@ -1,4 +1,4 @@
-"""add_unique_constraint_user_job_application
+﻿"""add_unique_constraint_user_job_application
 
 Revision ID: 123456789abc
 Revises: ceacb6415b96
@@ -67,3 +67,4 @@ def upgrade():
 def downgrade() -> None:
     # Drop the unique constraint
     op.drop_constraint("unique_user_job_application", "applications", type_="unique")
+

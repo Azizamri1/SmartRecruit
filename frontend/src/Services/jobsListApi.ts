@@ -1,4 +1,4 @@
-import api from "./apiClient";
+﻿import api from "./apiClient";
 import type { JobDetail } from "./jobsApi";
 
 export async function getJobs(): Promise<JobDetail[]> {
@@ -43,3 +43,4 @@ export async function updateJob(id: number, payload: Partial<JobDetail>) {
   const { data } = await api.patch(`/jobs/${id}`, payload);
   return data;
 }
+

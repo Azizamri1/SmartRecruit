@@ -1,4 +1,4 @@
-import { Navigate } from "react-router-dom";
+﻿import { Navigate } from "react-router-dom";
 import { getToken } from "../../Services/apiClient";
 
 type Props = {
@@ -43,3 +43,4 @@ export default function ProtectedRoute({ children, adminOnly, roles }: Props) {
 
   return <>{children}</>;
 }
+

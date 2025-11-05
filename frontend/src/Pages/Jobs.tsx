@@ -121,7 +121,7 @@ export default function Jobs(){
 
       <div className="jobsPageContainer">
         <div className="jobGrid">
-          {loading && <div style={{padding:"16px"}}>Chargement…</div>}
+          {loading && <div style={{padding:"16px"}}>Chargementâ€¦</div>}
           {!loading && cards.length > 0 && (
             <JobCardsGrid
               jobs={cards}
@@ -131,8 +131,8 @@ export default function Jobs(){
           )}
           {!loading && cards.length === 0 && (
             <div style={{padding:"32px", textAlign:"center"}}>
-              <div style={{fontSize:"20px"}}>Aucune offre ne correspond à votre recherche</div>
-              <div style={{color:"var(--ink-500)"}}>Essayez d'effacer des filtres ou utilisez d'autres mots-clés.</div>
+              <div style={{fontSize:"20px"}}>Aucune offre ne correspond Ã  votre recherche</div>
+              <div style={{color:"var(--ink-500)"}}>Essayez d'effacer des filtres ou utilisez d'autres mots-clÃ©s.</div>
             </div>
           )}
         </div>

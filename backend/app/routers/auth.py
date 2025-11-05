@@ -1,14 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-
-from .. import models
 from ..database import get_db
-from ..schemas import LoginIn, RegisterIn, TokenOut
-from ..utils.security import create_access_token  # your existing helpers
-from ..utils.security import hash_password, verify_password
+from .. import models
+from ..schemas import RegisterIn, TokenOut, LoginIn
+from ..utils.security import create_access_token, hash_password, verify_password  # your existing helpers
 
 router = APIRouter(prefix="/auth", tags=["auth"])
-
 
 @router.post("/register")
 def register(body: RegisterIn, db: Session = Depends(get_db)):
@@ -29,7 +26,6 @@ def register(body: RegisterIn, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(user)
     return {"id": user.id, "email": user.email}
-
 
 @router.post("/login", response_model=TokenOut)
 def login(body: LoginIn, db: Session = Depends(get_db)):

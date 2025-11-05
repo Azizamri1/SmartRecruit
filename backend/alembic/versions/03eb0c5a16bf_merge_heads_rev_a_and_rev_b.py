@@ -1,4 +1,4 @@
-"""merge heads REV_A and REV_B
+﻿"""merge heads REV_A and REV_B
 
 Revision ID: 03eb0c5a16bf
 Revises: 6e0bd79cd545, add_company_logo_and_desc
@@ -26,3 +26,4 @@ def upgrade() -> None:
 def downgrade() -> None:
     """Downgrade schema."""
     pass
+

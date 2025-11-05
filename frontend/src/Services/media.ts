@@ -1,4 +1,4 @@
-const API = import.meta.env.VITE_API_URL?.replace(/\/+$/, "") || "http://localhost:8000";
+﻿const API = import.meta.env.VITE_API_URL?.replace(/\/+$/, "") || "http://localhost:8000";
 
 export function toAbsoluteMedia(url?: string | null): string | undefined {
   if (!url) return undefined;
@@ -6,3 +6,4 @@ export function toAbsoluteMedia(url?: string | null): string | undefined {
   if (url.startsWith("/")) return `${API}${url}`;
   return `${API}/${url.replace(/^\/+/, "")}`;
 }
+

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 
 export default function HeroSearch({ defaultQuery, onSubmit }:{
   defaultQuery?: string; onSubmit:(q:string)=>void;
@@ -43,7 +43,7 @@ export default function HeroSearch({ defaultQuery, onSubmit }:{
             <input
               name="q"
               defaultValue={defaultQuery}
-              placeholder="Les jobs en télétravail vous intéressent?"
+              placeholder="Les jobs en tÃ©lÃ©travail vous intÃ©ressent?"
               style={{
                 width:"100%", maxWidth: 640, padding:"14px 20px", borderRadius: 999,
                 border:"none", fontSize:14, boxShadow:"0 4px 6px rgba(0,0,0,.1)"
@@ -56,10 +56,11 @@ export default function HeroSearch({ defaultQuery, onSubmit }:{
                 width:48, height:48, borderRadius:"50%", background:"#1F2937",
                 color:"#fff", border:"none", cursor:"pointer", display:"grid", placeItems:"center"
               }}
-            >🔎</button>
+            >ðŸ”Ž</button>
           </form>
         </div>
       </div>
     </section>
   );
 }
+

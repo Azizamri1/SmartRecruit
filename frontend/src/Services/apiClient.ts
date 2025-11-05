@@ -1,4 +1,4 @@
-import axios from "axios";
+﻿import axios from "axios";
 
 // ---- storage helpers (adapt if you already have them) ----
 const TOKEN_KEY = "token";
@@ -69,7 +69,7 @@ api.interceptors.response.use(
   (error) => {
     const status = error?.response?.status;
 
-    // Unauthenticated or forbidden → logout+redirect
+    // Unauthenticated or forbidden â†’ logout+redirect
     if (status === 401 || status === 403) {
       forceLoginRedirect(status === 401 ? "expired" : "forbidden");
       return new Promise(() => {}); // stop promise chain
@@ -81,7 +81,7 @@ api.interceptors.response.use(
       return new Promise(() => {}); // stop promise chain
     }
 
-    // Network/timeout with protected routes and no token → redirect too
+    // Network/timeout with protected routes and no token â†’ redirect too
     if (!status) {
       const token = getToken();
       if (!token) {
@@ -118,3 +118,4 @@ export function setAuthTokenAndStartWatcher(token: string) {
 }
 
 export default api;
+
