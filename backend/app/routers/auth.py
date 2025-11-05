@@ -4,8 +4,8 @@ from sqlalchemy.orm import Session
 from .. import models
 from ..database import get_db
 from ..schemas import LoginIn, RegisterIn, TokenOut
-from ..utils.security import (create_access_token,  # your existing helpers
-                              hash_password, verify_password)
+from ..utils.security import create_access_token  # your existing helpers
+from ..utils.security import hash_password, verify_password
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
