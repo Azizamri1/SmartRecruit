@@ -2,17 +2,17 @@ import os
 import sys
 from logging.config import fileConfig
 
-from sqlalchemy import engine_from_config, pool
 from alembic import context
-
 # --- Load .env ---
 from dotenv import load_dotenv
+from sqlalchemy import engine_from_config, pool
+
 load_dotenv()
 
 # --- Make sure "app" is importable ---
 # backend structure: backend/app/...
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))          # .../backend/alembic
-PROJECT_DIR = os.path.dirname(BASE_DIR)                        # .../backend
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))  # .../backend/alembic
+PROJECT_DIR = os.path.dirname(BASE_DIR)  # .../backend
 if PROJECT_DIR not in sys.path:
     sys.path.append(PROJECT_DIR)
 
@@ -40,6 +40,7 @@ if config.config_file_name is not None:
 
 # target_metadata tells Alembic what to autogenerate from
 target_metadata = Base.metadata
+
 
 # Helpful compare options
 def run_migrations_offline():

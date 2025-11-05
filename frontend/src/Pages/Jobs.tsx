@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./jobs.theme.css";
 import "../components/jobs/JobCardsGrid.css";
 import "../components/jobs/JobCard.css";
@@ -6,14 +7,68 @@ import HeroSearch from "../components/jobs/HeroSearch";
 import FilterBar from "../components/jobs/FilterBar";
 import type { Filters } from "../components/jobs/FilterBar";
 import "../components/jobs/FilterBar.css";
+import JobCardsGrid from "../components/jobs/JobCardsGrid";
+import { type JobCardProps } from "../components/jobs/JobCard";
 import { getJobs } from "../Services/jobsListApi";
 import type { JobDetail } from "../Services/jobsApi";
+import { toAbsoluteMedia } from "../Services/media";
+
+type User = {
+  full_name?: string;
+  is_admin?: boolean;
+  account_type?: "admin" | "company" | "candidate";
+  company_name?: string | null;
+};
 
 export default function Jobs(){
+  const navigate = useNavigate();
+  const [user, setUser] = useState<User | null>(null);
   const [query, setQuery] = useState("");
   const [filters, setFilters] = useState<Filters>({ type: [], gov: [], mode: [], specialty: [] });
   const [jobs, setJobs] = useState<JobDetail[]>([]);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("me");
+      if (raw) setUser(JSON.parse(raw));
+    } catch {
+      setUser(null);
+    }
+  }, []);
+
+  const isCompany = !!(user?.account_type === "company" || user?.company_name);
+
+  const handleApply = (jobId: number) => {
+    if (!user) {
+      navigate('/auth/signin');
+    } else if (!isCompany) {
+      navigate(`/apply/${jobId}`);
+    }
+  };
+
+  const handleView = (jobId: number) => {
+    navigate(`/jobs/${jobId}`);
+  };
+
+  // Map API job data to JobCardProps including logoUrl
+  const toCard = (j: JobDetail): JobCardProps => ({
+    id: j.id,
+    title: j.title,
+    company_name: j.company_name || null,
+    company_logo_url: j.company_logo_url || null,
+    experience_min: j.experience_min || null,
+    employment_type: j.employment_type || null,
+    work_mode: j.work_mode || null,
+    salary_min: j.salary_min || null,
+    salary_max: j.salary_max || null,
+    salary_currency: j.salary_currency || null,
+    salary_is_confidential: j.salary_is_confidential || false,
+    skills: j.skills || [],
+    posted_at: j.posted_at || null,
+    updated_at: j.updated_at || null,
+    has_applied: j.has_applied || false,
+  });
 
   useEffect(() => {
     (async () => {
@@ -46,6 +101,11 @@ export default function Jobs(){
     });
   }, [jobs, query, filters]);
 
+  const cards: JobCardProps[] = useMemo(
+    () => filtered.map(toCard),
+    [filtered]
+  );
+
   return (
     <div className="jobsTheme">
       <HeroSearch
@@ -62,46 +122,14 @@ export default function Jobs(){
       <div className="jobsPageContainer">
         <div className="jobGrid">
           {loading && <div style={{padding:"16px"}}>Chargement…</div>}
-          {!loading && filtered.map(j => (
-            <div key={j.id} className="jobCard">
-              <header className="jobCard__header">
-                <img className="jobCard__logo" alt={`${j.company_name ?? "Entreprise"} logo`}
-                     src={j.company_logo_url ? (j.company_logo_url.startsWith("http")? j.company_logo_url : `${import.meta.env.VITE_API_BASE_URL?.replace(/\/+$/,"") ?? ""}${j.company_logo_url}`) : ""} />
-                <div className="jobCard__headText">
-                  <h3 className="jobCard__title">{j.title}</h3>
-                  <div className="jobCard__company">{j.company_name}</div>
-                </div>
-              </header>
-
-              <div className="jobCard__facts">
-                <div className="chip"><span>Expérience</span><strong>{j.experience_min ?? "—"}</strong></div>
-                <div className="chip"><span>Type</span><strong>{j.employment_type ?? "—"}</strong></div>
-                <div className="chip"><span>Mode</span><strong>{j.work_mode ?? "—"}</strong></div>
-                <div className="chip"><span>Niveau</span><strong>{j.education_level ?? "—"}</strong></div>
-              </div>
-
-              {!!(j.skills?.length) && (
-                <>
-                  <span style={{color: "#6b768a", fontSize: ".82rem"}}>Compétences</span>
-                  <ul className="jlSkills">
-                    {j.skills.slice(0,3).map((s,i)=><li key={i} className="jlSkill">{s}</li>)}
-                    {j.skills.length > 3 && <li className="jlSkill jlSkill--more">+{j.skills.length-3} de plus</li>}
-                  </ul>
-                </>
-              )}
-
-              <div className="jobCard__dates">
-                <span className="muted">Publié: {j.posted_at ? new Date(j.posted_at).toLocaleDateString() : "—"}</span>
-                <span className="muted">Modifié: {j.updated_at ? new Date(j.updated_at).toLocaleDateString() : "—"}</span>
-              </div>
-
-              <div className="jobCard__actions">
-                <a className="jlBtn jlBtn--teal" href={`/jobs/${j.id}`}>Voir l'offre</a>
-                <a className="jlBtn jlBtn--blue" href={`/apply/${j.id}`}>Postuler</a>
-              </div>
-            </div>
-          ))}
-          {!loading && filtered.length === 0 && (
+          {!loading && cards.length > 0 && (
+            <JobCardsGrid
+              jobs={cards}
+              onApply={handleApply}
+              onView={handleView}
+            />
+          )}
+          {!loading && cards.length === 0 && (
             <div style={{padding:"32px", textAlign:"center"}}>
               <div style={{fontSize:"20px"}}>Aucune offre ne correspond à votre recherche</div>
               <div style={{color:"var(--ink-500)"}}>Essayez d'effacer des filtres ou utilisez d'autres mots-clés.</div>

@@ -1,26 +1,38 @@
 # app/utils/nlp.py
 from __future__ import annotations
+
 import os
 from typing import List, Tuple
-from pydantic import BaseModel
-from pypdf import PdfReader
-from docx import Document
 
 import numpy as np
-from sentence_transformers import SentenceTransformer, CrossEncoder, util
+from docx import Document
+from pydantic import BaseModel
+from pypdf import PdfReader
+from sentence_transformers import CrossEncoder, SentenceTransformer, util
+
 
 # ==== Request body passthrough used in applications router ====
 class BaseModelLike(BaseModel):
     pass
 
+
 # ---- Model loading (singletons) ----
 # Fast and good: all-MiniLM-L6-v2 (384-dim). You can switch via env if you want.
-BI_ENCODER_MODEL_NAME = os.getenv("BI_ENCODER_MODEL", "sentence-transformers/all-MiniLM-L6-v2")
-CROSS_ENCODER_MODEL_NAME = os.getenv("CROSS_ENCODER_MODEL", "cross-encoder/ms-marco-MiniLM-L-6-v2")
-USE_CROSS_ENCODER = os.getenv("USE_CROSS_ENCODER", "true").lower() in {"1", "true", "yes"}
+BI_ENCODER_MODEL_NAME = os.getenv(
+    "BI_ENCODER_MODEL", "sentence-transformers/all-MiniLM-L6-v2"
+)
+CROSS_ENCODER_MODEL_NAME = os.getenv(
+    "CROSS_ENCODER_MODEL", "cross-encoder/ms-marco-MiniLM-L-6-v2"
+)
+USE_CROSS_ENCODER = os.getenv("USE_CROSS_ENCODER", "true").lower() in {
+    "1",
+    "true",
+    "yes",
+}
 
 _bi_encoder: SentenceTransformer | None = None
 _cross_encoder: CrossEncoder | None = None
+
 
 def _get_bi_encoder() -> SentenceTransformer:
     global _bi_encoder
@@ -28,11 +40,13 @@ def _get_bi_encoder() -> SentenceTransformer:
         _bi_encoder = SentenceTransformer(BI_ENCODER_MODEL_NAME)
     return _bi_encoder
 
+
 def _get_cross_encoder() -> CrossEncoder:
     global _cross_encoder
     if _cross_encoder is None:
         _cross_encoder = CrossEncoder(CROSS_ENCODER_MODEL_NAME)
     return _cross_encoder
+
 
 # ---- Basic text extraction for CV files ----
 def extract_text(path: str) -> str:
@@ -48,10 +62,12 @@ def extract_text(path: str) -> str:
             return f.read()
     raise ValueError(f"Unsupported file type: {os.path.basename(path)}")
 
+
 # ---- Normalization (very light) ----
 def _normalize(text: str) -> str:
     # Keep it simple; heavy cleanup can hurt semantic models
     return " ".join(text.replace("\r", " ").split())
+
 
 # ---- Core similarity (bi-encoder + optional cross-encoder) ----
 def compute_similarity(cv_text: str, job_text: str) -> float:
@@ -87,8 +103,11 @@ def compute_similarity(cv_text: str, job_text: str) -> float:
         # If cross-encoder fails, fall back gracefully
         return bi_score
 
+
 # ---- Batch helper (useful later if you pre-score many internships) ----
-def rank_internships(cv_text: str, jobs: List[Tuple[int, str]], top_k: int = 20) -> List[Tuple[int, float]]:
+def rank_internships(
+    cv_text: str, jobs: List[Tuple[int, str]], top_k: int = 20
+) -> List[Tuple[int, float]]:
     """
     jobs: list of (internship_id, job_text)
     Returns [(id, score)] sorted by score desc.

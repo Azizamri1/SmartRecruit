@@ -1,19 +1,10 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
+import SRMultiStep, { SRSection } from "../components/forms/SRMultiStep";
+import { useFormWizard } from "../components/forms/useFormWizard";
 import api from "../Services/apiClient";
+import SuccessModal from "../components/common/SuccessModal";
 import "./ApplicationForm.css";
-
-interface ApplicationData {
-  job_id: number;
-  first_name: string;
-  last_name: string;
-  email: string;
-  phone_number: string;
-  education_level: string;
-  years_experience: number;
-  linkedin_url?: string;
-  cover_letter: string;
-}
 
 interface Job {
   id: number;
@@ -24,30 +15,56 @@ interface Job {
   requirements?: string[];
   deadline?: string;
   contract_type?: string;
+  company_name?: string;
+  employment_type?: string;
 }
 
-const steps = [
-  { id: 1, title: "Personal Information", progress: 25 },
-  { id: 2, title: "Education & Experience", progress: 50 },
-  { id: 3, title: "Cover Letter & CV", progress: 75 },
-  { id: 4, title: "Review & Submit", progress: 100 },
-];
+const steps = ["Personal Info", "Education & Experience", "Cover Letter & CV", "Review & Submit"];
+
+type ApplicationData = {
+  job_id: number;
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone_number: string;
+  education_level: string;
+  years_experience: number;
+  linkedin_url?: string;
+  cover_letter: string;
+  cv_id?: number | null;
+};
 
 type CurrentCV = { id: number; file_path: string; uploaded_at: string } | null;
+
+async function uploadCv(file: File) {
+  const fd = new FormData();
+  fd.append("file", file); // key must be "file" to match FastAPI param name
+
+  try {
+    // do NOT set Content-Type explicitly; axios will add the multipart boundary
+    const { data } = await api.post("/cvs", fd);
+    return data; // expect { id, file_path, uploaded_at } per CVRead
+  } catch (err: any) {
+    // bubble up server message if present, so you can see it in the UI
+    const detail =
+      err?.response?.data?.detail ??
+      err?.message ??
+      "Failed to upload CV. Please try again.";
+    throw new Error(detail);
+  }
+}
 
 export default function ApplicationForm() {
   const { jobId } = useParams<{ jobId: string }>();
   const navigate = useNavigate();
-  const [currentStep, setCurrentStep] = useState(1);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [currentCv, setCurrentCv] = useState<CurrentCV>(null);
   const [job, setJob] = useState<Job | null>(null);
   const [jobLoading, setJobLoading] = useState(true);
   const [jobError, setJobError] = useState("");
-  const [submitError, setSubmitError] = useState("");
-  const [submitted, setSubmitted] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [createdId, setCreatedId] = useState<string | null>(null);
 
-  const [formData, setFormData] = useState<ApplicationData>({
+  const { step, steps: s, data, patch, next, prev, isLast } = useFormWizard<ApplicationData>(steps, {
     job_id: Number(jobId) || 0,
     first_name: "",
     last_name: "",
@@ -57,13 +74,14 @@ export default function ApplicationForm() {
     years_experience: 0,
     linkedin_url: "",
     cover_letter: "",
+    cv_id: null,
   });
 
   useEffect(() => {
     // Check authentication
     const token = localStorage.getItem("token");
     if (!token) {
-      navigate("/", { state: { message: "Please log in to apply." } });
+      navigate("/auth/signin");
       return;
     }
 
@@ -79,265 +97,83 @@ export default function ApplicationForm() {
       }
     };
 
-    // Fetch current CV
-    const fetchCurrentCv = async () => {
+    // Fetch user profile and current CV for autofill
+    const fetchUserData = async () => {
       try {
-        const response = await api.get(`/cvs/current`);
-        setCurrentCv(response.data);
+        // Fetch user profile
+        const userResponse = await api.get("/users/me");
+        const userData = userResponse.data;
+
+        // Autofill form with user data
+        patch({
+          first_name: userData.first_name || "",
+          last_name: userData.last_name || "",
+          email: userData.email || "",
+          linkedin_url: userData.linkedin_url || "",
+        });
+
+        // Fetch current CV
+        try {
+          const cvResponse = await api.get(`/cvs/current`);
+          setCurrentCv(cvResponse.data);
+          // Update form data with existing CV ID
+          if (cvResponse.data) {
+            patch({ cv_id: cvResponse.data.id });
+          }
+        } catch (cvErr) {
+          setCurrentCv(null);
+        }
       } catch (err) {
-        // CV not uploaded yet, that's ok
-        setCurrentCv(null);
+        console.error("Failed to fetch user data:", err);
       }
     };
 
     if (jobId) fetchJob();
-    fetchCurrentCv();
+    fetchUserData();
   }, [navigate, jobId]);
 
   const onReplaceCv = async (file: File) => {
     try {
-      const fd = new FormData();
-      fd.append("file", file);
-      await api.post("/cvs", fd);
-      // Refresh current CV after upload
-      const curRes = await api.get("/cvs/current");
-      setCurrentCv(curRes.data);
-    } catch (err) {
-      alert("Failed to upload CV. Please try again.");
+      const data = await uploadCv(file);
+      setCurrentCv(data);
+      // Update form data with new CV ID
+      if (data) {
+        patch({ cv_id: data.id });
+      }
+    } catch (err: any) {
+      alert(err.message);
     }
   };
-
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-
-
-  const nextStep = () => setCurrentStep((prev) => Math.min(prev + 1, 4));
-  const prevStep = () => setCurrentStep((prev) => Math.max(prev - 1, 1));
 
   const handleSubmit = async () => {
-    setIsSubmitting(true);
-    setSubmitError("");
     try {
+      // Defensive guard: Check if user has already applied to this job
+      if (job) {
+        try {
+          const jobDetail = await api.get(`/jobs/${jobId}`);
+          if (jobDetail.data.has_applied) {
+            alert("You have already applied to this job.");
+            return;
+          }
+        } catch (checkError) {
+          console.warn("Could not verify application status, proceeding anyway:", checkError);
+        }
+      }
+
       const formPayload = {
-        ...formData,
-        years_experience: Number(formData.years_experience),
+        ...data,
+        years_experience: Number(data.years_experience),
       };
 
-      await api.post("/applications", formPayload);
-
-      setSubmitted(true);
+      const result = await api.post("/applications", formPayload);
+      setCreatedId(result.data?.id || null);
+      setShowSuccess(true);
     } catch (error: any) {
       console.error("Application submission failed:", error);
-      const errorMsg = error.response?.status === 400
-        ? error.response.data.detail || "Duplicate information found. Please verify your details."
-        : "An error occurred. Please try again.";
-      setSubmitError(errorMsg);
-    } finally {
-      setIsSubmitting(false);
+      const errorMessage = error.response?.data?.detail || "An error occurred. Please try again.";
+      alert(errorMessage);
     }
   };
-
-  const renderStepContent = () => {
-    switch (currentStep) {
-      case 1:
-        return (
-          <div className="step-content">
-            <h2 className="step-title">Personal Information</h2>
-            <div className="form-group">
-              <label htmlFor="first_name" className="form-label">
-                First Name *
-              </label>
-              <input
-                type="text"
-                id="first_name"
-                name="first_name"
-                value={formData.first_name}
-                onChange={handleInputChange}
-                required
-                className="form-input"
-              />
-            </div>
-            <div className="form-group">
-              <label htmlFor="last_name" className="form-label">
-                Last Name *
-              </label>
-              <input
-                type="text"
-                id="last_name"
-                name="last_name"
-                value={formData.last_name}
-                onChange={handleInputChange}
-                required
-                className="form-input"
-              />
-            </div>
-            <div className="form-group">
-              <label htmlFor="email" className="form-label">
-                Email *
-              </label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                value={formData.email}
-                onChange={handleInputChange}
-                required
-                className="form-input"
-              />
-            </div>
-            <div className="form-group">
-              <label htmlFor="phone_number" className="form-label">
-                Phone Number *
-              </label>
-              <input
-                type="tel"
-                id="phone_number"
-                name="phone_number"
-                value={formData.phone_number}
-                onChange={handleInputChange}
-                required
-                className="form-input"
-              />
-            </div>
-            <div className="form-group">
-              <label htmlFor="linkedin_url" className="form-label">
-                LinkedIn URL
-              </label>
-              <input
-                type="url"
-                id="linkedin_url"
-                name="linkedin_url"
-                value={formData.linkedin_url}
-                onChange={handleInputChange}
-                placeholder="https://linkedin.com/in/yourprofile"
-                className="form-input"
-              />
-            </div>
-          </div>
-        );
-
-      case 2:
-        return (
-          <div className="step-content">
-            <h2 className="step-title">Education & Experience</h2>
-            <div className="form-group">
-              <label htmlFor="education_level" className="form-label">
-                Education Level *
-              </label>
-              <select
-                id="education_level"
-                name="education_level"
-                value={formData.education_level}
-                onChange={handleInputChange}
-                required
-                className="form-input"
-              >
-                <option value="">Select education level</option>
-                <option value="high_school">High School</option>
-                <option value="bachelors">Bachelor's Degree</option>
-                <option value="masters">Master's Degree</option>
-                <option value="doctorate">Doctorate</option>
-                <option value="other">Other</option>
-              </select>
-            </div>
-            <div className="form-group">
-              <label htmlFor="years_experience" className="form-label">
-                Years of Experience *
-              </label>
-              <input
-                type="number"
-                id="years_experience"
-                name="years_experience"
-                value={formData.years_experience}
-                onChange={handleInputChange}
-                min="0"
-                max="50"
-                required
-                className="form-input"
-              />
-            </div>
-          </div>
-        );
-
-      case 3:
-        return (
-          <div className="step-content">
-            <h2 className="step-title">Cover Letter & CV</h2>
-            <div className="form-group">
-              <label htmlFor="cover_letter" className="form-label">
-                Cover Letter *
-              </label>
-              <textarea
-                id="cover_letter"
-                name="cover_letter"
-                value={formData.cover_letter}
-                onChange={handleInputChange}
-                rows={8}
-                required
-                placeholder="Tell us why you're interested in this position and why you'd be a great fit..."
-                className="form-textarea"
-              />
-            </div>
-            <div className="card glass" style={{ padding: 16, marginTop: 16 }}>
-              <h4 style={{ marginTop: 0 }}>Votre CV</h4>
-              {currentCv ? (
-                <div>
-                  CV enregistré: {currentCv.file_path.split("/").pop()}
-                </div>
-              ) : (
-                <div style={{ color: "#f66" }}>Aucun CV enregistré</div>
-              )}
-              <label style={{ display: "inline-block", marginTop: 8, cursor: "pointer", background: "#f0f0f0", padding: "8px 12px", borderRadius: 4 }}>
-                Remplacer le CV
-                <input
-                  type="file"
-                  accept="application/pdf"
-                  style={{ display: "none" }}
-                  onChange={(e) => e.target.files?.[0] && onReplaceCv(e.target.files[0])}
-                />
-              </label>
-            </div>
-          </div>
-        );
-
-      case 4:
-        return (
-          <div className="step-content">
-            <h2 className="step-title">Review Your Application</h2>
-            <div className="review-section">
-              <h3>Personal Information</h3>
-              <p><strong>First Name:</strong> {formData.first_name}</p>
-              <p><strong>Last Name:</strong> {formData.last_name}</p>
-              <p><strong>Email:</strong> {formData.email}</p>
-              <p><strong>Phone:</strong> {formData.phone_number}</p>
-              <p><strong>LinkedIn:</strong> {formData.linkedin_url || "Not provided"}</p>
-            </div>
-
-            <div className="review-section">
-              <h3>Education & Experience</h3>
-              <p><strong>Education Level:</strong> {formData.education_level}</p>
-              <p><strong>Years of Experience:</strong> {formData.years_experience}</p>
-            </div>
-
-            <div className="review-section">
-              <h3>Cover Letter</h3>
-              <p className="cover-letter-preview">{formData.cover_letter}</p>
-              {currentCv && <p><strong>CV:</strong> {currentCv.file_path.split("/").pop()}</p>}
-            </div>
-          </div>
-        );
-
-      default:
-        return null;
-    }
-  };
-
-  const currentProgress = steps.find((step) => step.id === currentStep)?.progress || 0;
 
   if (jobLoading) return (
     <div className="application-form-container">
@@ -356,82 +192,228 @@ export default function ApplicationForm() {
     </div>
   );
 
-  if (submitted) return (
-    <div className="application-form-container">
-      <div className="application-card success-message">
-        <h2>Application Submitted Successfully!</h2>
-        <p>Your application has been received. We'll be in touch soon.</p>
-        <div className="nav-options">
-          <Link to="/jobs" className="apply-button">View More Jobs</Link>
-          <Link to="/" className="apply-button secondary">Home</Link>
-        </div>
-      </div>
-    </div>
-  );
-
-  if (submitError) return (
-    <div className="application-form-container">
-      <div className="application-card error-card">
-        <h2>Submission Error</h2>
-        <p>{submitError}</p>
-        <button onClick={() => setSubmitError("")} className="apply-button">Try Again</button>
-        <br />
-        <Link to="/jobs" className="apply-button secondary">Back to Jobs</Link>
-      </div>
-    </div>
-  );
-
   return (
-    <div className="application-form-container">
-      <div className="application-card">
-        {job && (
-          <div className="job-header">
-            <h2 className="job-title">{job.title}</h2>
-            <p className="job-description">{job.description}</p>
-          </div>
+    <>
+      <SRMultiStep title="Apply for Position" subtitle="Complete your application step by step" steps={s} active={step}>
+        {step === 0 && (
+          <>
+            <SRSection title="Personal Information">
+              <div className="srForm__field">
+                <label className="srForm__label">First Name *</label>
+                <input
+                  className="srForm__input"
+                  value={data.first_name || ""}
+                  onChange={e => patch({ first_name: e.target.value })}
+                  placeholder="Enter your first name"
+                />
+              </div>
+              <div className="srForm__field">
+                <label className="srForm__label">Last Name *</label>
+                <input
+                  className="srForm__input"
+                  value={data.last_name || ""}
+                  onChange={e => patch({ last_name: e.target.value })}
+                  placeholder="Enter your last name"
+                />
+              </div>
+              <div className="srForm__field">
+                <label className="srForm__label">Email Address *</label>
+                <input
+                  type="email"
+                  className="srForm__input"
+                  value={data.email || ""}
+                  onChange={e => patch({ email: e.target.value })}
+                  placeholder="your.email@example.com"
+                />
+              </div>
+              <div className="srForm__field">
+                <label className="srForm__label">Phone Number *</label>
+                <input
+                  type="tel"
+                  className="srForm__input"
+                  value={data.phone_number || ""}
+                  onChange={e => patch({ phone_number: e.target.value })}
+                  placeholder="+216 XX XXX XXX"
+                />
+              </div>
+              <div className="srForm__field">
+                <label className="srForm__label">LinkedIn Profile</label>
+                <input
+                  type="url"
+                  className="srForm__input"
+                  value={data.linkedin_url || ""}
+                  onChange={e => patch({ linkedin_url: e.target.value })}
+                  placeholder="https://linkedin.com/in/yourprofile"
+                />
+                <div className="srForm__hint">Optional but recommended for networking</div>
+              </div>
+            </SRSection>
+            <div className="srForm__btns">
+              <button className="srBtn srBtn--ghost" onClick={prev} disabled>Back</button>
+              <button className="srBtn srBtn--primary" onClick={next}>Next</button>
+            </div>
+          </>
         )}
 
-        <div className="progress-section">
-          <div className="progress-steps">
-            {steps.map((step, index) => (
-              <div key={step.id} className={`progress-step ${currentStep > step.id ? 'completed' : ''} ${currentStep === step.id ? 'current' : ''}`}>
-                <div className={`progress-step-circle ${currentStep > step.id ? 'completed' : ''} ${currentStep === step.id ? 'current' : ''}`}>
-                  {currentStep > step.id ? '✓' : step.id}
-                </div>
-                <span className="progress-step-title">{step.title}</span>
-                {index < steps.length - 1 && <div className={`progress-line ${currentStep > step.id ? 'active' : ''}`}></div>}
+        {step === 1 && (
+          <>
+            <SRSection title="Education & Experience">
+              <div className="srForm__field">
+                <label className="srForm__label">Education Level *</label>
+                <select
+                  className="srForm__select"
+                  value={data.education_level || ""}
+                  onChange={e => patch({ education_level: e.target.value })}
+                >
+                  <option value="">Select education level</option>
+                  <option value="high_school">High School</option>
+                  <option value="bachelors">Bachelor's Degree</option>
+                  <option value="masters">Master's Degree</option>
+                  <option value="doctorate">Doctorate</option>
+                  <option value="other">Other</option>
+                </select>
               </div>
-            ))}
-          </div>
-          <div className="progress-text">
-            Step {currentStep} of 4: {steps.find((s) => s.id === currentStep)?.title}
-          </div>
-        </div>
+              <div className="srForm__field">
+                <label className="srForm__label">Years of Experience *</label>
+                <input
+                  type="number"
+                  className="srForm__input"
+                  value={data.years_experience || ""}
+                  onChange={e => patch({ years_experience: Number(e.target.value) || 0 })}
+                  min="0"
+                  max="50"
+                  placeholder="0"
+                />
+              </div>
+            </SRSection>
+            <div className="srForm__btns">
+              <button className="srBtn srBtn--ghost" onClick={prev}>Back</button>
+              <button className="srBtn srBtn--primary" onClick={next}>Next</button>
+            </div>
+          </>
+        )}
 
-        <div className="form-content">{renderStepContent()}</div>
+        {step === 2 && (
+          <>
+            <SRSection title="Cover Letter & CV">
+              <div className="srForm__field">
+                <label className="srForm__label">Cover Letter *</label>
+                <textarea
+                  className="srForm__text"
+                  rows={8}
+                  value={data.cover_letter || ""}
+                  onChange={e => patch({ cover_letter: e.target.value })}
+                  placeholder="Tell us why you're interested in this position and why you'd be a great fit..."
+                />
+              </div>
 
-        <div className="form-navigation">
-          {currentStep > 1 && (
-            <button type="button" onClick={prevStep} className="nav-button secondary">
-              Previous
-            </button>
-          )}
-          {currentStep < 4 ? (
-            <button type="button" onClick={nextStep} className="nav-button primary">
-              Next
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={handleSubmit}
-              disabled={isSubmitting}
-              className="nav-button primary submit"
-            >
-              {isSubmitting ? "Submitting..." : "Submit Application"}
-            </button>
-          )}
-        </div>
-      </div>
-    </div>
+              <div className="cv-section" style={{
+                background: 'rgba(255, 255, 255, 0.05)',
+                borderRadius: '12px',
+                padding: '16px',
+                marginTop: '16px'
+              }}>
+                <h4 style={{ margin: '0 0 12px 0', color: 'rgba(255,255,255,0.9)' }}>CV Upload</h4>
+                {currentCv ? (
+                  <div style={{ color: '#1db954', fontWeight: '500' }}>
+                    ✓ CV uploaded: {currentCv.file_path.split("/").pop()}
+                  </div>
+                ) : (
+                  <div style={{ color: '#ff6b6b', fontWeight: '500' }}>
+                    ⚠ No CV uploaded yet
+                  </div>
+                )}
+                <label className="cv-upload-btn" style={{
+                  display: "inline-block",
+                  marginTop: 12,
+                  cursor: "pointer",
+                  background: "rgba(0, 114, 188, 0.8)",
+                  color: "#fff",
+                  padding: "10px 16px",
+                  borderRadius: "8px",
+                  fontSize: "14px",
+                  fontWeight: "500",
+                  border: "none",
+                  transition: "all 0.3s ease"
+                }}>
+                  {currentCv ? 'Replace CV' : 'Upload CV'}
+                  <input
+                    type="file"
+                    accept="application/pdf"
+                    style={{ display: "none" }}
+                    onChange={(e) => e.target.files?.[0] && onReplaceCv(e.target.files[0])}
+                  />
+                </label>
+              </div>
+            </SRSection>
+            <div className="srForm__btns">
+              <button className="srBtn srBtn--ghost" onClick={prev}>Back</button>
+              <button className="srBtn srBtn--primary" onClick={next}>Next</button>
+            </div>
+          </>
+        )}
+
+        {step === 3 && (
+          <>
+            <SRSection title="Application Summary" columns="two">
+              <div style={{ background: 'rgba(255, 255, 255, 0.05)', padding: '20px', borderRadius: '12px' }}>
+                <h4 style={{ margin: '0 0 16px 0', color: 'rgba(255,255,255,0.9)', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '8px' }}>
+                  Personal Information
+                </h4>
+                <div style={{ display: 'grid', gap: '8px', fontSize: '14px' }}>
+                  <div><strong>Full Name:</strong> {data.first_name} {data.last_name}</div>
+                  <div><strong>Email:</strong> {data.email}</div>
+                  <div><strong>Phone:</strong> {data.phone_number}</div>
+                  <div><strong>LinkedIn:</strong> {data.linkedin_url || "Not provided"}</div>
+                </div>
+
+                <h4 style={{ margin: '20px 0 16px 0', color: 'rgba(255,255,255,0.9)', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '8px' }}>
+                  Education & Experience
+                </h4>
+                <div style={{ display: 'grid', gap: '8px', fontSize: '14px' }}>
+                  <div><strong>Education:</strong> {data.education_level || "Not specified"}</div>
+                  <div><strong>Experience:</strong> {data.years_experience || 0} years</div>
+                </div>
+
+                <h4 style={{ margin: '20px 0 16px 0', color: 'rgba(255,255,255,0.9)', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '8px' }}>
+                  Documents
+                </h4>
+                <div style={{ display: 'grid', gap: '8px', fontSize: '14px' }}>
+                  <div><strong>Cover Letter:</strong> {data.cover_letter ? "Provided" : "Missing"}</div>
+                  <div><strong>CV:</strong> {currentCv ? "Uploaded" : "Missing"}</div>
+                </div>
+              </div>
+
+              <div style={{ background: 'rgba(255, 255, 255, 0.05)', padding: '20px', borderRadius: '12px' }}>
+                <h4 style={{ margin: '0 0 16px 0', color: 'rgba(255,255,255,0.9)', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '8px' }}>
+                  Job Details
+                </h4>
+                {job && (
+                  <div style={{ display: 'grid', gap: '8px', fontSize: '14px' }}>
+                    <div><strong>Position:</strong> {job.title}</div>
+                    <div><strong>Company:</strong> {job.company_name || "Not specified"}</div>
+                    <div><strong>Location:</strong> {job.location || "Not specified"}</div>
+                    <div><strong>Type:</strong> {job.employment_type || "Not specified"}</div>
+                  </div>
+                )}
+              </div>
+            </SRSection>
+
+            <div className="srForm__btns">
+              <button className="srBtn srBtn--ghost" onClick={prev}>Back</button>
+              <button className="srBtn srBtn--primary" onClick={handleSubmit}>Submit Application</button>
+            </div>
+          </>
+        )}
+      </SRMultiStep>
+
+      <SuccessModal
+        open={showSuccess}
+        title="Application Submitted!"
+        onClose={() => setShowSuccess(false)}
+        createdId={createdId}
+        status="published"
+      />
+    </>
   );
 }

@@ -1,151 +1,130 @@
 """
 Text extraction utilities for CV/resume processing
 """
+
 import os
-from typing import str
-from pypdf import PdfReader
+import re
+from pathlib import Path
+
 from docx import Document
+from pypdf import PdfReader
 
 
 def extract_text_from_file(file_path: str) -> str:
     """
     Extract text from various file formats (PDF, DOCX, TXT)
-
-    Args:
-        file_path: Path to the file
-
-    Returns:
-        Extracted text content
-
-    Raises:
-        ValueError: If file type is unsupported
-        FileNotFoundError: If file doesn't exist
-        Exception: For other extraction errors
     """
+    p = Path(file_path)
+    if not p.exists() or p.stat().st_size == 0:
+        raise ValueError("Cannot read an empty file")
     if not os.path.exists(file_path):
         raise FileNotFoundError(f"File not found: {file_path}")
 
-    file_extension = file_path.lower()
+    file_lower = file_path.lower()
 
-    try:
-        if file_extension.endswith('.pdf'):
-            return _extract_pdf_text(file_path)
-        elif file_extension.endswith('.docx'):
-            return _extract_docx_text(file_path)
-        elif file_extension.endswith('.txt'):
-            return _extract_txt_text(file_path)
-        else:
-            raise ValueError(f"Unsupported file type: {os.path.basename(file_path)}. "
-                           "Supported types: PDF, DOCX, TXT")
-    except Exception as e:
-        raise Exception(f"Failed to extract text from {file_path}: {str(e)}")
+    if file_lower.endswith(".pdf"):
+        return _extract_pdf_text(file_path)
+    if file_lower.endswith(".docx"):
+        return _extract_docx_text(file_path)
+    if file_lower.endswith(".txt"):
+        return _extract_txt_text(file_path)
+    raise ValueError(
+        f"Unsupported file type: {os.path.basename(file_path)}. Supported types: PDF, DOCX, TXT"
+    )
 
 
 def _extract_pdf_text(file_path: str) -> str:
-    """Extract text from PDF file"""
     reader = PdfReader(file_path)
-    text_parts = []
-
+    parts = []
     for page in reader.pages:
-        page_text = page.extract_text()
-        if page_text:
-            text_parts.append(page_text)
-
-    return "\n".join(text_parts)
+        t = page.extract_text() or ""
+        if t.strip():
+            parts.append(t)
+    return "\n".join(parts)
 
 
 def _extract_docx_text(file_path: str) -> str:
-    """Extract text from DOCX file"""
     doc = Document(file_path)
-    text_parts = []
-
+    parts = []
     for paragraph in doc.paragraphs:
         if paragraph.text.strip():
-            text_parts.append(paragraph.text)
-
-    # Also extract from tables if present
+            parts.append(paragraph.text)
     for table in doc.tables:
         for row in table.rows:
             for cell in row.cells:
                 if cell.text.strip():
-                    text_parts.append(cell.text)
-
-    return "\n".join(text_parts)
+                    parts.append(cell.text)
+    return "\n".join(parts)
 
 
 def _extract_txt_text(file_path: str) -> str:
-    """Extract text from TXT file"""
-    with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+    with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
         return f.read()
+
+
+# Heuristic: collapse sequences of single letters like "R e a c t" -> "React"
+# Keeps numbers/emails/URLs intact.
+_SPACED_LETTERS_RE = re.compile(
+    r"(?:\b[a-zA-Z]\s){4,}[a-zA-Z]\b"
+)  # ≥5 letters with spaces
+
+
+def _fix_spaced_letters(text: str) -> str:
+    def _join_run(run: str) -> str:
+        # run like "R e a c t" -> "React"
+        letters = run.split()
+        return "".join(letters)
+
+    out = []
+    i = 0
+    while i < len(text):
+        m = _SPACED_LETTERS_RE.search(text, i)
+        if not m:
+            out.append(text[i:])
+            break
+        # append chunk before match
+        out.append(text[i : m.start()])
+        # replace the matched run
+        out.append(_join_run(m.group(0)))
+        i = m.end()
+    return "".join(out)
 
 
 def clean_extracted_text(text: str) -> str:
     """
     Clean and normalize extracted text
-
-    Args:
-        text: Raw extracted text
-
-    Returns:
-        Cleaned text
     """
     if not text:
         return ""
-
-    # Remove excessive whitespace and normalize line breaks
+    # collapse whitespace
     text = " ".join(text.split())
-
-    # Remove non-printable characters but keep basic punctuation
-    import re
-    text = re.sub(r'[^\w\s.,!?-]', ' ', text)
-
-    # Normalize spaces
+    # remove non-printable (keep basic punctuation)
+    text = re.sub(r"[^\w\s.,!?-]", " ", text)
+    # normalize spaces again
     text = " ".join(text.split())
-
+    # NEW: de-space letter-by-letter artifacts
+    text = _fix_spaced_letters(text)
     return text.strip()
 
 
 def get_file_info(file_path: str) -> dict:
-    """
-    Get basic information about a file
-
-    Args:
-        file_path: Path to the file
-
-    Returns:
-        Dictionary with file information
-    """
     if not os.path.exists(file_path):
         raise FileNotFoundError(f"File not found: {file_path}")
-
     stat = os.stat(file_path)
-    file_extension = os.path.splitext(file_path)[1].lower()
-
+    _, ext = os.path.splitext(file_path)
     return {
-        'path': file_path,
-        'filename': os.path.basename(file_path),
-        'extension': file_extension,
-        'size_bytes': stat.st_size,
-        'size_kb': round(stat.st_size / 1024, 2),
-        'modified_time': stat.st_mtime
+        "path": file_path,
+        "filename": os.path.basename(file_path),
+        "extension": ext.lower(),
+        "size_bytes": stat.st_size,
+        "size_kb": round(stat.st_size / 1024, 2),
+        "modified_time": stat.st_mtime,
     }
 
 
 def preview_text(text: str, max_length: int = 500) -> str:
-    """
-    Get a preview of text, truncated to max_length
-
-    Args:
-        text: Full text
-        max_length: Maximum length for preview
-
-    Returns:
-        Text preview
-    """
     if not text:
         return ""
-
     if len(text) <= max_length:
         return text
-
     return text[:max_length].strip() + "..."

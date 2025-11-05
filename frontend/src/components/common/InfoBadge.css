@@ -1,13 +1,50 @@
+/* container card */
 .infoBadge{
-  display:flex; align-items:center; gap: var(--space-2);
-  background:#f7f9fc; border:1px solid var(--color-border);
-  border-radius:12px; padding:10px;
+  display: grid;
+  grid-template-columns: 40px 1fr;
+  gap: 10px;
+  align-items: center;
+
+  border-radius: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--ib-border, #E5E7EB);
+  background: var(--ib-bg, #FFFFFF);
+  box-shadow: 0 1px 2px rgba(0,0,0,.04);
+  transition: box-shadow .15s ease, transform .15s ease;
 }
+.infoBadge:hover{
+  box-shadow: 0 8px 24px rgba(0,0,0,.08);
+  transform: translateY(-1px);
+}
+.infoBadge--compact{ padding: 10px 12px; border-radius: 10px; }
+
+/* icon */
 .infoBadge__icon{
-  width:24px; height:24px; display:grid; place-items:center;
-  border-radius:8px; background:var(--color-chip); border:1px solid var(--color-chip-border);
-  font-size:.9rem;
+  width: 40px; height: 40px;
+  border-radius: 999px;
+  display: grid; place-items: center;
+  background: var(--ib-icon-bg, #F3F4F6);
+  color: var(--ib-icon-fg, #374151);
 }
-.infoBadge__text{ min-width:0; }
-.infoBadge__label{ font-size:.78rem; color:#6b768a; margin-bottom:2px; }
-.infoBadge__value{ font-weight:600; color:var(--color-ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.infoBadge__icon svg { width: 18px; height: 18px; }
+
+/* text */
+.infoBadge__text{ min-width: 0; }
+.infoBadge__label{
+  font-size: 12px;
+  color: #6B7280; /* Gray-500 */
+  line-height: 1.2;
+}
+.infoBadge__value{
+  font-weight: 700;
+  color: var(--ib-value, #0B5AAA);
+  line-height: 1.25;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+/* tonal variants (soft pastel like TuniJobs) */
+.infoBadge--blue  { --ib-bg:#EEF2FF; --ib-border:#E0E7FF; --ib-icon-bg:#E0E7FF; --ib-icon-fg:#1E40AF; --ib-value:#1E40AF; }
+.infoBadge--green { --ib-bg:#ECFDF5; --ib-border:#D1FAE5; --ib-icon-bg:#D1FAE5; --ib-icon-fg:#047857; --ib-value:#047857; }
+.infoBadge--amber { --ib-bg:#FFFBEB; --ib-border:#FEF3C7; --ib-icon-bg:#FEF3C7; --ib-icon-fg:#92400E; --ib-value:#92400E; }
+.infoBadge--pink  { --ib-bg:#FDF2F8; --ib-border:#FCE7F3; --ib-icon-bg:#FCE7F3; --ib-icon-fg:#9D174D; --ib-value:#9D174D; }
+.infoBadge--gray  { --ib-bg:#F9FAFB; --ib-border:#E5E7EB; --ib-icon-bg:#E5E7EB; --ib-icon-fg:#374151; --ib-value:#111827; }

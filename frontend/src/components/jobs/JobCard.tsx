@@ -1,5 +1,14 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { toAbsoluteMedia } from "../../Services/media";
 import "./JobCard.css";
+
+type User = {
+  full_name?: string;
+  is_admin?: boolean;
+  account_type?: "admin" | "company" | "candidate";
+  company_name?: string | null;
+};
 
 export type JobCardProps = {
   id: number;
@@ -16,6 +25,9 @@ export type JobCardProps = {
   skills?: string[];
   posted_at?: string | null;
   updated_at?: string | null;
+  has_applied?: boolean;
+  onApply?: (id: number) => void;
+  onView?: (id: number) => void;
 };
 
 function fact(label:string, value:string) {
@@ -28,35 +40,60 @@ function fact(label:string, value:string) {
 }
 
 export default function JobCard(props: JobCardProps){
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("me");
+      if (raw) setUser(JSON.parse(raw));
+    } catch {
+      setUser(null);
+    }
+  }, []);
+
+  const isCompany = !!(user?.account_type === "company" || user?.company_name);
   const {
     id, title, company_name, company_logo_url,
     experience_min, employment_type, work_mode,
     salary_min, salary_max, salary_currency, salary_is_confidential,
-    skills = [], posted_at, updated_at
+    skills = [], posted_at, updated_at, has_applied, onApply, onView
   } = props;
 
-  const logo = company_logo_url?.startsWith("http")
-    ? company_logo_url
-    : `${import.meta.env.VITE_API_BASE_URL?.replace(/\/+$/,"") ?? ""}${company_logo_url ?? ""}`;
+  const logo = toAbsoluteMedia(company_logo_url || null);
 
-  const salary = useMemo(() =>
-    salary_is_confidential ? "Confidentiel" :
-    (salary_min && salary_max && salary_currency) ? `${salary_min} - ${salary_max} ${salary_currency}` :
-    (salary_min && salary_currency) ? `≥ ${salary_min} ${salary_currency}` :
-    (salary_max && salary_currency) ? `≤ ${salary_max} ${salary_currency}` : "—",
-    [salary_min, salary_max, salary_currency, salary_is_confidential]
-  );
+  const salary = useMemo(() => {
+    if (salary_is_confidential) return "Confidentiel";
+
+    const currency = salary_currency || "DT";
+    const hasMin = salary_min !== null && salary_min !== undefined;
+    const hasMax = salary_max !== null && salary_max !== undefined;
+
+    if (hasMin && hasMax) {
+      return `${salary_min} - ${salary_max} ${currency}`;
+    } else if (hasMin) {
+      return `≥ ${salary_min} ${currency}`;
+    } else if (hasMax) {
+      return `≤ ${salary_max} ${currency}`;
+    } else {
+      return "Salaire non spécifié";
+    }
+  }, [salary_min, salary_max, salary_currency, salary_is_confidential]);
 
   return (
     <article className="jobCard jobCard--tj group">
       {/* Header */}
       <header className="jobCard__header">
-        <div className="jobCard__logoWrap">
-          {logo && <img className="jobCard__logo" src={logo} alt={`${company_name} logo`} />}
-        </div>
-        <div className="jobCard__headText">
-          <h3 className="jobCard__title">{title}</h3>
-          <div className="jobCard__company">{company_name}</div>
+        {/* logo on the far left of header */}
+        {logo && (
+          <div className="jobCard__brand">
+            <img className="jobCard__brandImg" src={logo} alt="" aria-hidden="true" />
+          </div>
+        )}
+        <div className="jobCard__left">
+          <div className="jobCard__headText">
+            <h3 className="jobCard__title">{title}</h3>
+            {company_name && <div className="jobCard__company">{company_name}</div>}
+          </div>
         </div>
       </header>
 
@@ -86,8 +123,20 @@ export default function JobCard(props: JobCardProps){
           <span>Modifié: {updated_at ? new Date(updated_at).toLocaleDateString() : "—"}</span>
         </div>
         <div className="jobCard__actions jobCard__actions--tj">
-          <a className="jlBtn jlBtn--outlineTeal" href={`/jobs/${id}`}>🛈&nbsp; Voir l'offre</a>
-          <a className="jlBtn jlBtn--outlineBlue" href={`/apply/${id}`}>✈︎&nbsp; Postuler</a>
+          <Link className="jlBtn jlBtn--outlineTeal" to={`/jobs/${id}`}>🛈&nbsp; Voir l'offre</Link>
+          {has_applied ? (
+            <span className="jlBtn jlBtn--applied" aria-disabled="true">
+              ✓&nbsp; Postulé
+            </span>
+          ) : (
+            <a
+              className="jlBtn jlBtn--outlineBlue"
+              href={user && !isCompany ? `/apply/${id}` : !user ? '/auth/signin' : undefined}
+              {...(isCompany ? { 'aria-disabled': true, style: { pointerEvents: 'none', opacity: 0.5, cursor: 'not-allowed' } } : {})}
+            >
+              ✈︎&nbsp; Postuler
+            </a>
+          )}
         </div>
       </div>
     </article>

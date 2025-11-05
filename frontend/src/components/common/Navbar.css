@@ -2,13 +2,13 @@
 .sr-nav {
   position: sticky; top: 0; z-index: 1000;
   display: flex; align-items: center; justify-content: space-between;
-  gap: 16px; padding: 10px 16px; margin-bottom: 12px;
+  gap: 16px; padding: 12px 20px; margin-bottom: 16px;
 
   /* glassmorphic */
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.12);
-  backdrop-filter: blur(10px);
-  border-radius: 12px;
+  background: rgb(61 60 60 / 37%);
+  border: 1px solid rgba(255,255,255,0.15);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
 }
 
 .sr-nav__left { display: flex; align-items: center; gap: 14px; }
@@ -27,13 +27,6 @@
   color: #fff; background: rgba(255,255,255,0.10);
 }
 
-.user-chip {
-  padding: 6px 10px; border-radius: 999px;
-  background: rgba(255,255,255,0.08);
-  border: 1px solid rgba(255,255,255,0.14);
-  color: #e9eef8;
-}
-
 .btn-ghost {
   appearance: none; background: transparent;
   border: 1px solid rgba(255,255,255,0.16);
@@ -47,11 +40,11 @@
 
 .auth-trigger {
   appearance: none;
-  background: transparent;
-  border: 1px solid rgba(255,255,255,0.16);
+  background: #00000042;
+  border: 1px solid rgba(255, 255, 255, 0.16);
   color: #e9eef8;
-  padding: 6px 10px;
-  border-radius: 8px;
+  padding: 6px 15px;
+  border-radius: 999px;
   cursor: pointer;
 }
 
@@ -92,11 +85,11 @@
 .auth-menu { position: relative; }
 .auth-trigger {
   appearance: none;
-  background: transparent;
-  border: 1px solid rgba(255,255,255,0.16);
+  background: #00000042;
+  border: 1px solid rgba(255, 255, 255, 0.16);
   color: #e9eef8;
-  padding: 6px 10px;
-  border-radius: 8px;
+  padding: 6px 15px;
+  border-radius: 999px;
   cursor: pointer;
 }
 .auth-trigger:hover { background: rgba(255,255,255,0.10); }
@@ -119,10 +112,3 @@
 }
 .auth-item:hover { background: rgba(255,255,255,0.08); }
 .auth-caption { display: block; opacity: .7; font-size: 12px; margin-top: 4px; }
-
-.user-chip {
-  padding: 6px 10px; border-radius: 999px;
-  background: rgba(255,255,255,0.08);
-  border: 1px solid rgba(255,255,255,0.14);
-  color: #e9eef8;
-}

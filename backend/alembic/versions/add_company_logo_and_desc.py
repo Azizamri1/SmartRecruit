@@ -5,17 +5,15 @@ Revises: ceacb6415b96
 Create Date: 2025-10-15 12:18:34.000000
 
 """
-from typing import Sequence, Union
 
-from alembic import op
 import sqlalchemy as sa
-
+from alembic import op
 
 # revision identifiers, used by Alembic.
-revision: str = 'add_company_logo_and_desc'
-down_revision: Union[str, Sequence[str], None] = 'ceacb6415b96'
-branch_labels: Union[str, Sequence[str], None] = None
-depends_on: Union[str, Sequence[str], None] = None
+revision = "add_company_logo_and_desc"
+down_revision = "ceacb6415b96"
+branch_labels = None
+depends_on = None
 
 
 def upgrade() -> None:

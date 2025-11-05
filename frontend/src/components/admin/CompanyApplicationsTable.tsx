@@ -16,6 +16,15 @@ function statusMod(s?: string | null) {
   return s && s.trim() ? s : "pending";
 }
 
+// Helper function to map UI status to API status
+function mapUIToAPIStatus(uiStatus: StatusFilter): "pending" | "accepted" | "rejected" | undefined {
+  if (uiStatus === "all") {
+    return undefined;
+  } else {
+    return uiStatus; // now they match directly
+  }
+}
+
 type SortKey = "score_desc" | "score_asc";
 type StatusFilter = "all" | "pending" | "accepted" | "rejected";
 
@@ -75,7 +84,7 @@ export default function CompanyApplicationsTable() {
       try {
         const apps = await fetchAdminJobApplications(selectedJobId, {
           sort,
-          status: filterStatus === "all" ? undefined : filterStatus,
+          status: mapUIToAPIStatus(filterStatus),
         });
         if (!mounted) return;
         setApps(apps);
@@ -123,7 +132,7 @@ export default function CompanyApplicationsTable() {
         if (selectedJobId) {
           const fresh = await fetchAdminJobApplications(selectedJobId, {
             sort,
-            status: filterStatus === "all" ? undefined : filterStatus,
+            status: mapUIToAPIStatus(filterStatus),
           });
           setApps(fresh);
         }
@@ -146,109 +155,157 @@ export default function CompanyApplicationsTable() {
     }
   };
 
+
+
   return (
     <div>
-      {/* Controls */}
-      <div className="toolbar">
-        <label style={{ opacity: 0.8 }}>Job</label>
-        <select value={selectedJobId ?? ""} onChange={(e) => setSelectedJobId(e.target.value ? Number(e.target.value) : null)} className="input">
-          {jobs.length === 0 && <option value="">— No jobs —</option>}
-          {jobs.map((j) => (
-            <option key={j.id} value={j.id}>
-              {j.title} {j.status ? `(${j.status})` : ""}
-            </option>
-          ))}
-        </select>
+      {/* Enhanced Controls Section */}
+      <div className="controls">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <label style={{ color: 'rgba(255,255,255,0.8)', fontSize: '13px', fontWeight: '500' }}>Job:</label>
+          <select
+            value={selectedJobId ?? ""}
+            onChange={(e) => setSelectedJobId(e.target.value ? Number(e.target.value) : null)}
+            className="input"
+          >
+            {jobs.length === 0 && <option value="">— No jobs —</option>}
+            {jobs.map((j) => (
+              <option key={j.id} value={j.id}>
+                {j.title} {j.status ? `(${j.status})` : ""}
+              </option>
+            ))}
+          </select>
+        </div>
 
-        <label style={{ opacity: 0.8 }}>Status</label>
-        <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value as StatusFilter)} className="input">
-          <option value="all">All</option>
-          <option value="pending">Pending</option>
-          <option value="accepted">Accepted</option>
-          <option value="rejected">Rejected</option>
-        </select>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <label style={{ color: 'rgba(255,255,255,0.8)', fontSize: '13px', fontWeight: '500' }}>Status:</label>
+          <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value as StatusFilter)} className="input">
+            <option value="all">All</option>
+            <option value="pending">Pending</option>
+            <option value="accepted">Accepted</option>
+            <option value="rejected">Rejected</option>
+          </select>
+        </div>
 
-        <label style={{ opacity: 0.8 }}>Sort</label>
-        <select value={sort} onChange={(e) => setSort(e.target.value as SortKey)} className="input">
-          <option value="score_desc">Score: high → low</option>
-          <option value="score_asc">Score: low → high</option>
-        </select>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <label style={{ color: 'rgba(255,255,255,0.8)', fontSize: '13px', fontWeight: '500' }}>Sort:</label>
+          <select value={sort} onChange={(e) => setSort(e.target.value as SortKey)} className="input">
+            <option value="score_desc">Score: high → low</option>
+            <option value="score_asc">Score: low → high</option>
+          </select>
+        </div>
 
-        <div className="toolbar__spacer" />
-        <button className="btn btn-outline" disabled={selectedIds.length === 0} onClick={() => onBulkAction("accepted")}>
-          Set Accepted ({selectedIds.length})
-        </button>
-        <button className="btn btn-outline" disabled={selectedIds.length === 0} onClick={() => onBulkAction("rejected")}>
-          Set Rejected ({selectedIds.length})
-        </button>
+        <div style={{ marginLeft: 'auto', display: 'flex', gap: '12px', alignItems: 'center' }}>
+          <button
+            className="btn"
+            disabled={selectedIds.length === 0}
+            onClick={() => onBulkAction("accepted")}
+            style={{
+              background: 'rgba(29, 185, 84, 0.8)',
+              borderColor: 'rgba(29, 185, 84, 0.6)',
+              opacity: selectedIds.length === 0 ? 0.5 : 1
+            }}
+          >
+            ✓ Accept ({selectedIds.length})
+          </button>
+          <button
+            className="btn"
+            disabled={selectedIds.length === 0}
+            onClick={() => onBulkAction("rejected")}
+            style={{
+              background: 'rgba(255, 77, 79, 0.8)',
+              borderColor: 'rgba(255, 77, 79, 0.6)',
+              opacity: selectedIds.length === 0 ? 0.5 : 1
+            }}
+          >
+            ✗ Reject ({selectedIds.length})
+          </button>
+        </div>
       </div>
 
-      {/* Table */}
-      <div className="card">
-        <div className="tableWrap">
+      {/* Modern Table Container */}
+      <div className="tableWrap">
         <div className="thead">
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div>
             <input type="checkbox" checked={allChecked} onChange={toggleAll} />
-            <span style={{ fontSize: 12, opacity: 0.8 }}>Select all</span>
           </div>
           <div>ID</div>
           <div>Score</div>
-          <div>Job title</div>
+          <div>Job Title</div>
           <div>Status</div>
-          <div>Applied at</div>
+          <div>Applied At</div>
           <div>Actions</div>
         </div>
 
-        {loading && <div className="trow" style={{ opacity: 0.7 }}>Loading…</div>}
-        {err && !loading && (
-          <div className="trow" style={{ color: "#f66" }}>{err}</div>
-        )}
-        {!loading && !err && apps.length === 0 && (
-          <div className="trow" style={{ opacity: 0.7 }}>No applications.</div>
+        {loading && (
+          <div className="trow" style={{ opacity: 0.7, textAlign: 'center', padding: '20px' }}>
+            Loading applications...
+          </div>
         )}
 
-        {!loading &&
-          !err &&
-          apps.map((a) => (
-            <div key={a.id} className="trow">
-              <div style={{ display: "flex", alignItems: "center" }}>
-                <input
-                  type="checkbox"
-                  checked={!!selected[a.id]}
-                  onChange={(e) => onRowCheck(a.id, e.target.checked)}
-                />
-              </div>
-              <div>#{a.id}</div>
-              <div>{a.score == null ? "—" : a.score}</div>
-              <div>{a.job_title}</div>
-              <div>
-                <span className={`badge badge--${statusMod(a.status)}`}>
-                  {formatStatusLabel(a.status)}
-                </span>
-              </div>
-              <div style={{ whiteSpace: "nowrap" }}>
-                {a.applied_at ? new Date(a.applied_at).toLocaleString() : "—"}
-              </div>
-              <div className="btnRow">
-                <button
-                  className="btn"
-                  style={{ padding: "0.4em 1.0em", fontWeight: 200 }}
-                  onClick={() => onRowStatusChange(a.id, "accepted")}
-                >
-                  Accept
-                </button>
-                <button
-                  className="btn"
-                  style={{ padding: "0.4em 1.0em", fontWeight: 200, marginLeft: 6 }}
-                  onClick={() => onRowStatusChange(a.id, "rejected")}
-                >
-                  Reject
-                </button>
-              </div>
+        {err && !loading && (
+          <div className="trow" style={{ color: "#ff6b6b", textAlign: 'center', padding: '20px' }}>
+            Error: {err}
+          </div>
+        )}
+
+        {!loading && !err && apps.length === 0 && (
+          <div className="trow" style={{ opacity: 0.7, textAlign: 'center', padding: '20px' }}>
+            No applications found.
+          </div>
+        )}
+
+        {!loading && !err && apps.map((a) => (
+          <div key={a.id} className="trow">
+            <div style={{ display: "flex", alignItems: "center" }}>
+              <input
+                type="checkbox"
+                checked={!!selected[a.id]}
+                onChange={(e) => onRowCheck(a.id, e.target.checked)}
+              />
             </div>
-          ))}
-        </div>
+            <div style={{ fontWeight: '600', color: '#0072bc' }}>#{a.id}</div>
+            <div style={{ fontWeight: '600', color: a.score && a.score > 70 ? '#1db954' : a.score && a.score > 40 ? '#f2c744' : '#ff4d4f' }}>
+              {a.score == null ? "—" : `${a.score}%`}
+            </div>
+            <div style={{ fontWeight: '500' }}>{a.job_title}</div>
+            <div>
+              <span className={`badge badge--${statusMod(a.status)}`}>
+                {formatStatusLabel(a.status)}
+              </span>
+            </div>
+            <div style={{ whiteSpace: "nowrap", fontSize: '13px', color: 'rgba(255,255,255,0.7)' }}>
+              {a.applied_at ? new Date(a.applied_at).toLocaleDateString() : "—"}
+            </div>
+            <div className="btnRow">
+              <button
+                className="btn"
+                style={{
+                  background: 'rgba(29, 185, 84, 0.8)',
+                  borderColor: 'rgba(29, 185, 84, 0.6)',
+                  color: '#ffffff'
+                }}
+                onClick={() => onRowStatusChange(a.id, "accepted")}
+              >
+                ✓ Accept
+              </button>
+              <button
+                className="btn"
+                style={{
+                  background: 'rgba(255, 77, 79, 0.8)',
+                  borderColor: 'rgba(255, 77, 79, 0.6)',
+                  color: '#ffffff'
+                }}
+                onClick={() => onRowStatusChange(a.id, "rejected")}
+              >
+                ✗ Reject
+              </button>
+            </div>
+          </div>
+        ))}
       </div>
+
+
     </div>
   );
 }
