@@ -126,9 +126,6 @@ def create_job(
     if not (user.is_admin or getattr(user, "account_type", None) == "company"):
         raise HTTPException(403, "Not allowed")
 
-    # derive company name if not provided
-    company_name = payload.company_name or getattr(user, "company_name", None)
-
     # if company fields are missing in the payload, default from user profile
     if not payload.company_name:
         payload.company_name = getattr(user, "company_name", None)

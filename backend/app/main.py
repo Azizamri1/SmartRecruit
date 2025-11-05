@@ -129,7 +129,7 @@ def warmup_ai():
     """Warm up AI models by loading them into memory"""
     try:
         # Force loading of AI models
-        test_emb = ai_service.get_embedding("warmup test text")
+        ai_service.get_embedding("warmup test text")
         print("AI models warmed up successfully")
         return {"message": "AI models warmed up successfully"}
     except Exception as e:

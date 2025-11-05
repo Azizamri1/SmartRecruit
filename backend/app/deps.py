@@ -10,7 +10,7 @@ from fastapi.security import OAuth2PasswordBearer
 from jose import jwt
 from sqlalchemy.orm import Session
 
-from .core.ratelimit import allow, remaining
+from .core.ratelimit import allow
 
 load_dotenv()
 
@@ -83,7 +83,6 @@ def rate_limit(limit: int, window_sec: int, key_prefix: str):
         ip = request.client.host if request.client else "unknown"
         key = f"{key_prefix}:{ip}"
         if not allow(key, limit, window_sec):
-            rem = remaining(key, limit, window_sec)
             raise HTTPException(status_code=429, detail="Too Many Requests")
         return True
 
