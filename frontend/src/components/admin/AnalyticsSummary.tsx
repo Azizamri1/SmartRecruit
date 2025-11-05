@@ -7,7 +7,7 @@ import "./AnalyticsSummary.css";
 ensureChartJSRegistered();
 
 function formatStatusLabel(s?: string | null) {
-  return s ? s.replace(/_/g, " ") : "â€”";
+  return s ? s.replace(/_/g, " ") : "—";
 }
 function statusMod(s?: string | null) {
   return s && s.trim() ? s : "pending";
@@ -18,7 +18,7 @@ type Summary = {
   jobs: number; open_jobs: number; applications: number;
   by_status: Record<string, number>;
   score_histogram?: Record<string, number>;
-  trend_30d?: TrendPoint[];   // <â€” weâ€™ll use this
+  trend_30d?: TrendPoint[];   // <— we’ll use this
 };
 
 export default function AnalyticsSummary() {
@@ -47,7 +47,7 @@ export default function AnalyticsSummary() {
   }, []);
 
   if (err) return <div className="error">{err}</div>;
-  if (!data) return <div>Loading analyticsâ€¦</div>;
+  if (!data) return <div>Loading analytics…</div>;
 
   const trend = Array.isArray(data.trend_30d) ? data.trend_30d : [];
   const labels = trend.map(p => p.date ?? "").filter(Boolean);
@@ -77,7 +77,7 @@ export default function AnalyticsSummary() {
         {"avg_score" in data && (
           <div className="kpi">
             <div className="kpi__label">Average Score</div>
-            <div className="kpi__value">{(data as any).avg_score?.toFixed?.(1) ?? "â€”"}</div>
+            <div className="kpi__value">{(data as any).avg_score?.toFixed?.(1) ?? "—"}</div>
           </div>
         )}
       </div>
@@ -142,10 +142,10 @@ export default function AnalyticsSummary() {
                 <tbody>
                   {(data as any).recent_applications?.map?.((r: any, i: number) => (
                     <tr key={i}>
-                      <td style={{fontWeight: '500'}}>{r.candidate_email ?? "â€”"}</td>
-                      <td>{r.job_title ?? "â€”"}</td>
+                      <td style={{fontWeight: '500'}}>{r.candidate_email ?? "—"}</td>
+                      <td>{r.job_title ?? "—"}</td>
                       <td style={{textAlign: 'center', fontWeight: '600'}}>
-                        {r.score ? `${r.score}%` : "â€”"}
+                        {r.score ? `${r.score}%` : "—"}
                       </td>
                       <td style={{textAlign: 'center'}}>
                         <span className={`pill pill--${statusMod(r.status)}`}>
@@ -153,7 +153,7 @@ export default function AnalyticsSummary() {
                         </span>
                       </td>
                       <td style={{textAlign: 'center', color: 'rgba(255,255,255,0.7)'}}>
-                        {r.applied_at ? new Date(r.applied_at).toLocaleDateString() : "â€”"}
+                        {r.applied_at ? new Date(r.applied_at).toLocaleDateString() : "—"}
                       </td>
                     </tr>
                   )) || null}

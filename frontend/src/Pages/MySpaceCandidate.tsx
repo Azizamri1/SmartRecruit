@@ -110,7 +110,7 @@ export default function MySpaceCandidate() {
     nav("/auth/signin");
   };
 
-  if (!me) return <div className="msc2-loading">Loadingâ€¦</div>;
+  if (!me) return <div className="msc2-loading">Loading…</div>;
 
   return (
     <section className="msc2">
@@ -199,7 +199,7 @@ export default function MySpaceCandidate() {
             </div>
             <div className="msc2-row">
               <button className="btn btn--primary" disabled={busy} onClick={onSaveProfile}>
-                <Save size={16}/> {busy ? "Savingâ€¦" : "Save"}
+                <Save size={16}/> {busy ? "Saving…" : "Save"}
               </button>
             </div>
           </div>

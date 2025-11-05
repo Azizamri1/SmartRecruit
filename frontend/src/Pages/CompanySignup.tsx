@@ -5,14 +5,14 @@ import api from "../Services/apiClient";
 
 export const SECTEURS = [
   "Informatique / IT",
-  "TÃ©lÃ©coms",
+  "Télécoms",
   "Banque / Finance",
   "Assurance",
-  "SantÃ©",
+  "Santé",
   "Industrie",
   "Commerce / Distribution",
   "Services",
-  "Ã‰ducation / Formation",
+  "Éducation / Formation",
   "Marketing / Communication",
   "Autre",
 ];

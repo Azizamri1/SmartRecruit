@@ -7,7 +7,7 @@ const Footer: React.FC = () => {
       <div className="sr-footer__content">
         <div className="sr-footer__brand">
           <div className="sr-footer__brand-top">
-            <img src="/tt-logo.svg" alt="Tunisie TÃ©lÃ©com" className="sr-footer__logo" />
+            <img src="/tt-logo.svg" alt="Tunisie Télécom" className="sr-footer__logo" />
             <span>SmartRecruit</span>
           </div>
           <p>Connecting talent with opportunity</p>

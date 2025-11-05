@@ -18,6 +18,6 @@ export function previewText(html: string, len = 160): string {
   const div = document.createElement("div");
   div.innerHTML = html || "";
   const text = (div.textContent || "").trim();
-  return text.length > len ? text.slice(0, len - 1) + "â€¦" : text;
+  return text.length > len ? text.slice(0, len - 1) + "…" : text;
 }
 

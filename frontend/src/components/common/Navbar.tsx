@@ -61,7 +61,7 @@ export default function Navbar() {
     <header className="sr-nav">
       <div className="sr-nav__left">
         <Link to="/jobs" className="brand">
-          <img src="/tt-logo.svg" alt="Tunisie TÃ©lÃ©com" />
+          <img src="/tt-logo.svg" alt="Tunisie Télécom" />
           <span>SmartRecruit</span>
         </Link>
 
@@ -107,7 +107,7 @@ export default function Navbar() {
                 )}
 
                 <button className="auth-item" onClick={logout}>
-                  DÃ©connexion
+                  Déconnexion
                 </button>
               </div>
             )}

@@ -320,14 +320,14 @@ export default function AdminJobCreate(){
             <div className="srForm__field">
               <label className="srForm__label">Employment Type</label>
               <select className="srForm__select" value={data.employment_type||""} onChange={e=>patch({employment_type:e.target.value})}>
-                <option value="">Selectâ€¦</option><option>CDI</option><option>CDD</option><option>Internship</option><option>Apprenticeship</option>
+                <option value="">Select…</option><option>CDI</option><option>CDD</option><option>Internship</option><option>Apprenticeship</option>
               </select>
               {errors.employment_type && <div className="srForm__error">{errors.employment_type}</div>}
             </div>
             <div className="srForm__field">
               <label className="srForm__label">Work mode</label>
               <select className="srForm__select" value={data.work_mode||""} onChange={e=>patch({work_mode:e.target.value})}>
-                <option value="">Selectâ€¦</option><option>On-site</option><option>Remote</option><option>Hybrid</option>
+                <option value="">Select…</option><option>On-site</option><option>Remote</option><option>Hybrid</option>
               </select>
             </div>
             <div className="srForm__field">
@@ -360,7 +360,7 @@ export default function AdminJobCreate(){
             </div>
             <div className="srForm__field">
               <label className="srForm__label">Experience</label>
-              <input className="srForm__input" placeholder="1â€“2 years" value={data.experience_min||""} onChange={e=>patch({experience_min:e.target.value})}/>
+              <input className="srForm__input" placeholder="1–2 years" value={data.experience_min||""} onChange={e=>patch({experience_min:e.target.value})}/>
             </div>
             <div className="srForm__field">
               <label className="srForm__label">Skills</label>

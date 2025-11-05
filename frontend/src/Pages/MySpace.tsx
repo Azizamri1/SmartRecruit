@@ -25,7 +25,7 @@ export default function MySpace() {
     setLoading(false);
   }, [nav]);
 
-  if (loading) return <div style={{padding:"2rem"}}>Loadingâ€¦</div>;
+  if (loading) return <div style={{padding:"2rem"}}>Loading…</div>;
 
   // Route to appropriate component based on user type
   if (userType === "candidate") {

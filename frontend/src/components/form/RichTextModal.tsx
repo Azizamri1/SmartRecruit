@@ -93,7 +93,7 @@ export default function RichTextModal({ title, value, onSave, onClose, placehold
             <button type="button" onClick={() => cmd("bold")}><b>B</b></button>
             <button type="button" onClick={() => cmd("italic")}><i>I</i></button>
             <button type="button" onClick={() => cmd("underline")}><u>U</u></button>
-            <button type="button" onClick={() => cmd("insertUnorderedList")}>â€¢ List</button>
+            <button type="button" onClick={() => cmd("insertUnorderedList")}>• List</button>
             <button type="button" onClick={() => cmd("insertOrderedList")}>1. List</button>
             <button type="button" onClick={() => {
               const url = prompt("Link URL:");
@@ -107,7 +107,7 @@ export default function RichTextModal({ title, value, onSave, onClose, placehold
               className="rtm-editor"
               contentEditable
               dir="ltr"
-              data-placeholder={placeholder || "Saisissez votre contenuâ€¦"}
+              data-placeholder={placeholder || "Saisissez votre contenu…"}
               style={{ direction: "ltr" }}
               // âœ… Update state but DO NOT write back to DOM
               onInput={(e) => {

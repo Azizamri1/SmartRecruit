@@ -131,7 +131,7 @@ export default function Login() {
         </p>
 
         <p className="register-prompt">
-          Donâ€™t have an account?{" "}
+          Don’t have an account?{" "}
           <a
             href="/register"
             className="register-link"

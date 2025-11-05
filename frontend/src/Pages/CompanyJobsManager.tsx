@@ -445,7 +445,7 @@ export default function CompanyJobsManager() {
       {/* Content */}
       <div className="card" style={{ marginTop: 12, background: "rgb(255 255 255 / 88%)" }}>
         {loading ? (
-          <div className="skeleton">Loadingâ€¦</div>
+          <div className="skeleton">Loading…</div>
         ) : filtered.length === 0 ? (
           <EmptyState
             title={query ? "No results" : tab === "published" ? "No published jobs yet" : tab === "draft" ? "No drafts yet" : "No archived jobs"}
@@ -475,7 +475,7 @@ export default function CompanyJobsManager() {
                   </div></td>
                   <td className="muted" style={{ color: '#666' }}><div className="cell">
                     {[j.location_city, j.location_country].filter(Boolean).join(", ")}
-                    { (j.employment_type || j.work_mode) && <><br/>{[j.employment_type, j.work_mode].filter(Boolean).join(" â€¢ ")}</> }
+                    { (j.employment_type || j.work_mode) && <><br/>{[j.employment_type, j.work_mode].filter(Boolean).join(" • ")}</> }
                   </div></td>
                   <td style={{ color: '#000' }}><div className="cell">
                     <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>

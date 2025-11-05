@@ -6,9 +6,9 @@ export type Filters = { type: string[]; gov: string[]; mode: string[]; specialty
 const empty: Filters = { type:[], gov:[], mode:[], specialty:[] };
 
 const PRESETS = {
-  type: ["CDI","CDD","Stage","Freelance","CIVP","IntÃ©rim"],
+  type: ["CDI","CDD","Stage","Freelance","CIVP","Intérim"],
   gov: ["Tunis","Ariana","Ben Arous","Manouba","Sfax","Sousse"],
-  mode: ["TÃ©lÃ©travail complet","Hybride","PrÃ©sentiel"],
+  mode: ["Télétravail complet","Hybride","Présentiel"],
   specialty: ["IT","Marketing","Ventes","RH","Finance"]
 };
 
@@ -33,8 +33,8 @@ export default function FilterBar({
       <div className="filterBar">
         {btn("type","Type Contrat")}
         {btn("gov","Gouvernorat")}
-        {btn("mode","TÃ©lÃ©travail")}
-        {btn("specialty","SpÃ©cialitÃ©s")}
+        {btn("mode","Télétravail")}
+        {btn("specialty","Spécialités")}
         {count !== undefined && <JobCount count={count} />}
       </div>
 
@@ -43,7 +43,7 @@ export default function FilterBar({
           title={
             open==="type" ? "Type Contrat" :
             open==="gov" ? "Gouvernorat" :
-            open==="mode" ? "TÃ©lÃ©travail" : "SpÃ©cialitÃ©s"
+            open==="mode" ? "Télétravail" : "Spécialités"
           }
           options={PRESETS[open]}
           selected={value[open]}

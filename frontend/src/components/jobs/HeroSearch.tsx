@@ -43,7 +43,7 @@ export default function HeroSearch({ defaultQuery, onSubmit }:{
             <input
               name="q"
               defaultValue={defaultQuery}
-              placeholder="Les jobs en tÃ©lÃ©travail vous intÃ©ressent?"
+              placeholder="Les jobs en télétravail vous intéressent?"
               style={{
                 width:"100%", maxWidth: 640, padding:"14px 20px", borderRadius: 999,
                 border:"none", fontSize:14, boxShadow:"0 4px 6px rgba(0,0,0,.1)"

@@ -43,10 +43,10 @@ export default function FilterPills({ value, onChange }:{
       <Section title="Gouvernorat">
         {["Tunis","Ariana","Ben Arous","Manouba","Sfax","Sousse"].map(o => pill(o, !!value.gov?.includes(o), () => toggleFrom("gov", o)))}
       </Section>
-      <Section title="TÃ©lÃ©travail">
-        {["TÃ©lÃ©travail complet","Hybride","PrÃ©sentiel"].map(o => pill(o, !!value.mode?.includes(o), () => toggleFrom("mode", o)))}
+      <Section title="Télétravail">
+        {["Télétravail complet","Hybride","Présentiel"].map(o => pill(o, !!value.mode?.includes(o), () => toggleFrom("mode", o)))}
       </Section>
-      <Section title="SpÃ©cialitÃ©s">
+      <Section title="Spécialités">
         {["IT","Marketing","Ventes","RH","Finance"].map(o => pill(o, !!value.specialty?.includes(o), () => toggleFrom("specialty", o)))}
       </Section>
     </div>
