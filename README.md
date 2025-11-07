@@ -1,126 +1,167 @@
 # SmartRecruit
-SmartRecruit is an end-to-end recruitment management system that connects candidates and administrators through a seamless, intelligent web platform. Built with a modern stack — FastAPI, React (TypeScript), and PostgreSQL — it enables job discovery, structured applications, automated communications, and AI-driven candidate ranking.
 
-## Development
+A job matching platform that uses AI to score CVs against job requirements. Matches candidates to opportunities by combining semantic similarity with rule-based criteria.
+
+## Tech Stack
+
+- Backend: FastAPI, PostgreSQL, SQLAlchemy, Pydantic
+- AI Scoring: SentenceTransformers (all-MiniLM-L6-v2) with rule-based components
+- Frontend: React, TypeScript, Vite
+
+## Quick Start
 
 ### Prerequisites
-- Node.js 18+
+
 - Python 3.8+
 - PostgreSQL
+- Node.js 16+ (for frontend)
 
-### Setup
-```bash
-# Install backend dependencies
-cd backend
-pip install -r requirements.txt
+### Local Setup
 
-# Install frontend dependencies
-cd ../frontend
-npm install
+1. Clone the repository and navigate to the project root.
 
-# Start development servers
-npm run dev  # Frontend (port 5173)
-# Backend: python -m uvicorn app.main:app --reload (port 8000)
+2. Set up the backend:
+   ```
+   cd backend
+   python -m venv .venv
+   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+   pip install -r requirements.txt
+   ```
+
+3. Configure environment variables:
+   ```
+   cp .env.example .env
+   ```
+   Edit `.env` with your settings:
+   ```
+   DATABASE_URL=postgresql://user:password@localhost:5432/smartrecruit
+   SECRET_KEY=your-secret-key-here
+   ALGORITHM=HS256
+   ACCESS_TOKEN_EXPIRE_MINUTES=30
+   SMTP_SERVER=smtp.example.com
+   SMTP_PORT=587
+   SMTP_USER=your-email@example.com
+   SMTP_PASSWORD=your-email-password
+   EMAIL_FROM=your-email@example.com
+   BI_ENCODER_MODEL=sentence-transformers/all-MiniLM-L6-v2
+   CORS_ORIGINS=http://localhost:5173
+   ```
+
+4. Set up the database:
+   ```
+   alembic upgrade head
+   ```
+
+5. Run the backend:
+   ```
+   uvicorn app.main:app --reload
+   ```
+   The API will be available at http://localhost:8000.
+
+6. Set up the frontend (in a new terminal):
+   ```
+   cd ../frontend
+   npm install
+   npm run dev
+   ```
+   The frontend will be available at http://localhost:5173.
+
+## Configuration
+
+Required environment variables:
+
+- `DATABASE_URL`: PostgreSQL connection string
+- `SECRET_KEY`: JWT signing key
+- `ALGORITHM`: JWT algorithm (default: HS256)
+- `ACCESS_TOKEN_EXPIRE_MINUTES`: Token expiration time
+- `SMTP_SERVER`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`: Email configuration
+- `EMAIL_FROM`: Sender email address
+- `BI_ENCODER_MODEL`: AI model name (default: sentence-transformers/all-MiniLM-L6-v2)
+- `CORS_ORIGINS`: Allowed frontend origins (comma-separated)
+
+## API Overview
+
+Main routers and endpoints:
+
+- `auth`: User authentication and registration
+- `users`: User profile management
+- `jobs`: Job CRUD operations
+  - `GET /jobs`: List published jobs
+  - `POST /jobs`: Create a new job (companies/admins)
+  - `GET /jobs/{job_id}`: Get job details
+  - `PATCH /jobs/{job_id}/status`: Update job status
+- `applications`: Application management
+  - `POST /applications`: Submit application (triggers background scoring)
+  - `GET /applications/me`: List user's applications
+  - `PATCH /applications/{application_id}/status`: Update application status (job owner/admin)
+  - `POST /applications/_debug/score`: Debug scoring endpoint (admin-only, requires bearer token)
+- `cvs`: CV upload and management
+- `admin_analytics`, `company_analytics`: Analytics endpoints
+- `company`: Company profile management
+
+Example debug scoring request (admin-only):
+```
+curl -H "Authorization: Bearer <ADMIN_TOKEN>" \
+  -X POST "http://localhost:8000/applications/_debug/score?cv_id=1&job_id=1"
 ```
 
-### Maintenance Scripts
+## Scoring Overview
 
-#### Frontend Maintenance
-```bash
-cd frontend
+CV-job matching combines semantic similarity with rule-based checks. The process extracts text from CVs (PDF/DOCX/TXT), tokenizes it, and compares against job descriptions using embeddings. Rule-based components include skills matching, requirements coverage, and profile alignment.
 
-# Run dead code analysis
-npm run deadcode-report
+Penalties apply for short CVs: 10.0 points off for <150 canonical tokens, 5.0 points off for 150-279 tokens. Scores cap at 70.0 if mandatory requirements are unmet.
 
-# Check for unused dependencies
-npm run deps-report
+## Background Tasks
 
-# Run all maintenance checks
-npm run maintenance
+Application scoring runs asynchronously after submission. The `POST /applications` endpoint queues a background task that extracts CV text, computes the match score, and saves it to the database.
 
-# Lint and fix issues
-npm run lint
+## Development & Testing
+
+### Running Tests
+
+Basic tests exist in the `tests/` directory. Run with:
+```
+python -m pytest tests/
 ```
 
-#### Backend Maintenance
-```bash
-cd backend
+### Database Migrations
 
-# Format code
-python -m black . && python -m isort .
-
-# Check for unused imports/variables
-python -m ruff check --select F401,F841
-
-# List all API routes
-python list_routes.py
+Use Alembic for schema changes:
+```
+alembic revision --autogenerate -m "description"
+alembic upgrade head
 ```
 
-### Code Quality
+### Scripts
 
-#### Frontend
-- **ESLint**: Configured with TypeScript support and strict unused variable detection
-- **Dead Code Detection**: Use `ts-prune` to identify unused exports
-- **Dependency Checking**: Use `depcheck` to find unused packages
+- `scripts/fix_mojibake.py`: Utility for encoding fixes
 
-#### Backend
-- **Ruff**: Fast Python linter with unused import/variable detection
-- **Black**: Code formatter
-- **isort**: Import sorter
+## Project Layout
 
-### Git Hooks
-Pre-commit hooks are configured to run linting and formatting checks before commits.
-
-### Architecture
-- **Frontend**: React + TypeScript + Vite
-- **Backend**: FastAPI + SQLAlchemy + PostgreSQL
-- **Components**: Barrel exports available via `src/components/index.ts`
-
-## Code Conventions
-
-### Project Structure
 ```
-frontend/src/
-├── components/          # Reusable UI components
-│   ├── common/         # Shared components (Navbar, Footer, etc.)
-│   ├── admin/          # Admin-specific components
-│   ├── jobs/           # Job-related components
-│   ├── forms/          # Form components and utilities
-│   └── company/        # Company-specific components
-├── Pages/              # Page components (routes)
-├── Services/           # API service functions
-├── utils/              # Utility functions
-└── styles/             # Global styles and design tokens
+backend/
+├── app/
+│   ├── routers/          # API endpoints
+│   ├── services/         # Business logic (AI scoring)
+│   ├── utils/            # Text extraction, helpers
+│   ├── config.py         # Settings
+│   ├── models.py         # Database models
+│   └── main.py           # FastAPI app
+├── alembic/              # Database migrations
+└── requirements.txt      # Python dependencies
 
-backend/app/
-├── routers/            # API route handlers
-├── services/           # Business logic services
-├── core/               # Core functionality (auth, middleware, etc.)
-├── utils/              # Utility functions
-└── models.py           # Database models
+frontend/
+├── src/
+│   ├── components/       # React components
+│   ├── Pages/            # Page components
+│   └── Services/         # API clients
+└── package.json          # Node dependencies
+
+tests/                    # Test files
+scripts/                  # Utility scripts
+uploads/                  # File storage
 ```
 
-### Naming Conventions
-- **Components**: PascalCase (e.g., `JobCard`, `UserProfile`)
-- **Files**: kebab-case for components, camelCase for utilities
-- **Functions**: camelCase
-- **Constants**: UPPER_SNAKE_CASE
-- **Types**: PascalCase with descriptive names
+## License & Credits
 
-### Import Order
-1. React imports
-2. Third-party libraries
-3. Local components/utilities
-4. Relative imports (sorted alphabetically)
-
-### Code Quality
-- ESLint configured for strict TypeScript checking
-- Pre-commit hooks enforce code formatting
-- Unused code is automatically detected and removed
-- Components use barrel exports for cleaner imports
-
-### Git Workflow
-- Feature branches for new development
-- Pre-commit hooks run linting and formatting
-- Commits follow conventional format when possible
-- Regular maintenance commits for code cleanup
+No license specified.
