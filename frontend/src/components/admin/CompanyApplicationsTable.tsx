@@ -7,6 +7,7 @@ import {
   type AdminJob,
   type AdminJobApp,
 } from "../../Services/applicationsApi";
+import { ArrowRight, Check, X } from "lucide-react";
 import "./CompanyApplicationsTable.css";
 
 function formatStatusLabel(s?: string | null) {
@@ -190,8 +191,8 @@ export default function CompanyApplicationsTable() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <label style={{ color: 'rgba(255,255,255,0.8)', fontSize: '13px', fontWeight: '500' }}>Sort:</label>
           <select value={sort} onChange={(e) => setSort(e.target.value as SortKey)} className="input">
-            <option value="score_desc">Score: high â†’ low</option>
-            <option value="score_asc">Score: low â†’ high</option>
+            <option value="score_desc">Score: high to low</option>
+            <option value="score_asc">Score: low to high</option>
           </select>
         </div>
 
@@ -206,7 +207,7 @@ export default function CompanyApplicationsTable() {
               opacity: selectedIds.length === 0 ? 0.5 : 1
             }}
           >
-            âœ“ Accept ({selectedIds.length})
+            <Check size={16} /> Accept ({selectedIds.length})
           </button>
           <button
             className="btn"
@@ -218,7 +219,7 @@ export default function CompanyApplicationsTable() {
               opacity: selectedIds.length === 0 ? 0.5 : 1
             }}
           >
-            âœ— Reject ({selectedIds.length})
+            <X size={16} /> Reject ({selectedIds.length})
           </button>
         </div>
       </div>
@@ -287,7 +288,7 @@ export default function CompanyApplicationsTable() {
                 }}
                 onClick={() => onRowStatusChange(a.id, "accepted")}
               >
-                âœ“ Accept
+                <Check size={16} /> Accept
               </button>
               <button
                 className="btn"
@@ -298,7 +299,7 @@ export default function CompanyApplicationsTable() {
                 }}
                 onClick={() => onRowStatusChange(a.id, "rejected")}
               >
-                âœ— Reject
+                <X size={16} /> Reject
               </button>
             </div>
           </div>
@@ -309,4 +310,3 @@ export default function CompanyApplicationsTable() {
     </div>
   );
 }
-

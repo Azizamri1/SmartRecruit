@@ -1,6 +1,7 @@
 ﻿import React, { useMemo, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { toAbsoluteMedia } from "../../Services/media";
+import { Eye, Rocket } from "lucide-react";
 import "./JobCard.css";
 
 type User = {
@@ -123,10 +124,10 @@ export default function JobCard(props: JobCardProps){
           <span>Modifié: {updated_at ? new Date(updated_at).toLocaleDateString() : "—"}</span>
         </div>
         <div className="jobCard__actions jobCard__actions--tj">
-          <Link className="jlBtn jlBtn--outlineTeal" to={`/jobs/${id}`}>ðŸ›ˆ&nbsp; Voir l'offre</Link>
+          <Link className="jlBtn jlBtn--outlineTeal" to={`/jobs/${id}`}><Eye size={16} />&nbsp; Voir l'offre</Link>
           {has_applied ? (
             <span className="jlBtn jlBtn--applied" aria-disabled="true">
-              âœ“&nbsp; Postulé
+              <Rocket size={16} />&nbsp; Postulé
             </span>
           ) : (
             <a
@@ -134,7 +135,7 @@ export default function JobCard(props: JobCardProps){
               href={user && !isCompany ? `/apply/${id}` : !user ? '/auth/signin' : undefined}
               {...(isCompany ? { 'aria-disabled': true, style: { pointerEvents: 'none', opacity: 0.5, cursor: 'not-allowed' } } : {})}
             >
-              âœˆï¸Ž&nbsp; Postuler
+              <Rocket size={16} />&nbsp; Postuler
             </a>
           )}
         </div>

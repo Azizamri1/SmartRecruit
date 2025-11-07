@@ -1,5 +1,6 @@
 ﻿import { Link } from "react-router-dom";
 import BackgroundAnimation from "../components/common/BackgroundAnimation";
+import { Building2, User } from "lucide-react";
 
 export default function Register() {
   return (
@@ -38,7 +39,7 @@ export default function Register() {
             marginBottom: "20px",
             opacity: 0.8
           }}>
-            ðŸ¢
+            <Building2 size={64} />
           </div>
           <h3 style={{
             fontSize: "24px",
@@ -137,7 +138,7 @@ export default function Register() {
                 minHeight: "64px"
               }}
             >
-              <span style={{ fontSize: "24px" }}>ðŸ‘¤</span>
+              <User size={24} />
               <div style={{ textAlign: "center" }}>
                 <div>Individual Account</div>
                 <div style={{ fontSize: "12px", opacity: 0.9, marginTop: "2px" }}>For job seekers</div>
@@ -164,7 +165,7 @@ export default function Register() {
                 minHeight: "64px"
               }}
             >
-              <span style={{ fontSize: "24px" }}>ðŸ¢</span>
+              <Building2 size={24} />
               <div style={{ textAlign: "center" }}>
                 <div>Company Account</div>
                 <div style={{ fontSize: "12px", opacity: 0.9, marginTop: "2px" }}>For employers</div>
@@ -203,4 +204,3 @@ export default function Register() {
     </div>
   );
 }
-

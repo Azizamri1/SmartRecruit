@@ -1,11 +1,11 @@
-﻿# OS
-.DS_Store
-Thumbs.db
-
-# Editors/IDE
+﻿# Editors/IDE
 .vscode/
 .idea/
 *.swp
+*.sublime-project
+*.sublime-workspace
+.vscode/settings.json
+.idea/workspace.xml
 
 # Node/Frontend
 node_modules/
@@ -33,6 +33,11 @@ backend/.ruff_cache/
 backend/.coverage
 backend/htmlcov/
 
+# Root-level Python caches
+.ruff_cache/
+__pycache__/
+*.pyc
+
 # Alembic caches (keep versions tracked)
 backend/alembic/*.pyc
 backend/alembic/__pycache__/
@@ -53,6 +58,7 @@ temp/
 # Media/uploads (not versioned)
 backend/uploads/
 frontend/public/uploads/
+uploads/
 
 # Local backups/history
 .history/
@@ -69,6 +75,30 @@ backend/*.db
 backend/_archive/
 frontend/_archive/
 
+# Scripts and tests (utility, not core code)
+scripts/
+tests/
+
+# Git hooks (local development)
+.githooks/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
 # Temporary/cleanup files
 .cleanup.*
 *.ps1
+*.tmp
+*.bak
+*.orig
+*.rej

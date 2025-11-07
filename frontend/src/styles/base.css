@@ -1,14 +1,30 @@
+/* ==========================================================================
+   Base Styles - Core layout and component styles
+   ========================================================================== */
+
+/* Layout foundation */
 @layer theme;
 @layer theme {
-  html, body, #root { height: 100%; }
-  body { color: var(--text); }
+  html, body, #root {
+    height: 100%;
+  }
 
+  body {
+    color: var(--text);
+  }
+
+  /* Responsive container with clamped padding */
   .container {
     width: 100%;
     max-width: var(--container);
     margin-inline: auto;
     padding-inline: clamp(16px, 4vw, 32px);
   }
+}
+
+/* ==========================================================================
+   Card Component
+   ========================================================================== */
 
 .card {
   background: var(--card-bg);
@@ -17,17 +33,28 @@
   padding: var(--s-5);
 }
 
+/* ==========================================================================
+   Table Components
+   ========================================================================== */
+
 .table {
   width: 100%;
   border-collapse: collapse;
 }
-.table tbody { border-top: 2px solid #e0e0e0; }
-.table th, .table td {
+
+.table tbody {
+  border-top: 2px solid #e0e0e0;
+}
+
+.table th,
+.table td {
   padding: 10px 12px;
   border-bottom: 1px solid var(--border);
   vertical-align: top;
 }
-.table th > .cell, .table td > .cell {
+
+.table th > .cell,
+.table td > .cell {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -35,86 +62,197 @@
   gap: 8px;
   min-height: 48px;
 }
-.table--dense th, .table--dense td { padding: 8px 10px; }
+
+.table--dense th,
+.table--dense td {
+  padding: 8px 10px;
+}
+
+/* ==========================================================================
+   Toolbar Component
+   ========================================================================== */
 
 .toolbar {
-  display: flex; gap: var(--s-3); align-items: center; flex-wrap: wrap;
+  display: flex;
+  gap: var(--s-3);
+  align-items: center;
+  flex-wrap: wrap;
 }
-.toolbar__spacer { flex: 1 1 auto; }
+
+.toolbar__spacer {
+  flex: 1 1 auto;
+}
+
+/* ==========================================================================
+   Status Pills/Badges
+   ========================================================================== */
 
 .pill {
-  display: inline-flex; align-items: center; gap: 6px;
-  padding: 6px 10px; border-radius: 999px; font-size: 12px;
-  border: 1px solid var(--border); background: rgba(255,255,255,.06);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.06);
 }
-.pill--pending { color: var(--st-yellow); background: var(--st-yellow-bg); border-color: var(--st-yellow-br); }
-.pill--accepted { color: var(--st-green); background: var(--st-green-bg); border-color: var(--st-green-br); }
-.pill--rejected { color: var(--st-red); background: var(--st-red-bg); border-color: var(--st-red-br); }
+
+/* Status-specific pill colors */
+.pill--pending {
+  color: var(--st-yellow);
+  background: var(--st-yellow-bg);
+  border-color: var(--st-yellow-br);
+}
+
+.pill--accepted {
+  color: var(--st-green);
+  background: var(--st-green-bg);
+  border-color: var(--st-green-br);
+}
+
+.pill--rejected {
+  color: var(--st-red);
+  background: var(--st-red-bg);
+  border-color: var(--st-red-br);
+}
+
+/* ==========================================================================
+   KPI/Dashboard Components
+   ========================================================================== */
 
 .kpis {
-  display: grid; gap: var(--s-3);
+  display: grid;
+  gap: var(--s-3);
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
 }
-.kpi .kpi__label { font-size: 12px; opacity: .8; margin-bottom: 6px; }
-.kpi .kpi__value { font-size: 26px; font-weight: 700; line-height: 1.1; }
 
-.chartBox { height: 320px; width: 100%; position: relative; }
+.kpi .kpi__label {
+  font-size: 12px;
+  opacity: 0.8;
+  margin-bottom: 6px;
+}
+
+.kpi .kpi__value {
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+/* ==========================================================================
+   Chart Containers
+   ========================================================================== */
+
+.chartBox {
+  height: 320px;
+  width: 100%;
+  position: relative;
+}
+
+/* ==========================================================================
+   Button Components
+   ========================================================================== */
 
 .btn {
   cursor: pointer;
   font-weight: 300;
   padding: 6px 10px;
+  transition: transform 0.2s;
 }
+
+.btn:hover {
+  transform: scale(1.02);
+}
+
 .btn-primary {
-  background: var(--accent); color: #081018; border: 1px solid transparent;
-  padding: 8px 12px; border-radius: 10px; font-weight: 600;
-}
-  .btn-outline {
-    background: transparent; color: var(--text); border: 1px solid var(--border);
-    padding: 8px 12px; border-radius: 10px; font-weight: 600;
-  }
-  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  background: var(--accent);
+  color: #081018;
+  border: 1px solid transparent;
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-weight: 600;
 }
 
-.tabBtn { padding: 8px 12px; border-radius: 8px; background: #ffffff; }
-.tabBtn.active { background: rgb(193 195 198 / 73%); }
-.badge.success { background: #d1fae5; }
-.badge.neutral { background: #e5e7eb; }
+.btn-outline {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-weight: 600;
+}
 
+/* Focus styles for accessibility */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Tab buttons */
+.tabBtn {
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.tabBtn.active {
+  background: rgb(193 195 198 / 73%);
+}
+
+/* Status badges */
+.badge.success {
+  background: #d1fae5;
+}
+
+.badge.neutral {
+  background: #e5e7eb;
+}
+
+/* Action buttons */
 .btn-edit {
   background: transparent;
   font-weight: 200;
   padding: 6px 8px;
 }
+
 .btn-delete {
   background: #731c1c;
   font-weight: 200;
   padding: 6px 8px;
 }
+
 .btn-archive {
   background: #406e9d;
   font-weight: 200;
   padding: 6px 8px;
 }
 
-.btn {
-  cursor: pointer;
-  transition: transform 0.2s;
-}
-.btn:hover {
-  transform: scale(1.02);
+/* ==========================================================================
+   Rich Text Modal Components
+   ========================================================================== */
+
+/* Modal overlay and dialog */
+.rtm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: grid;
+  place-items: center;
+  z-index: 1000;
 }
 
-/* RichTextModal styles */
-.rtm-overlay {
-  position: fixed; inset: 0; background: rgba(0,0,0,.45);
-  display: grid; place-items: center; z-index: 1000;
-}
 .rtm-dialog {
-  width: min(900px, 92vw); max-height: 86vh; background: #fff;
-  border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,.2);
-  display: flex; flex-direction: column; overflow: hidden;
+  width: min(900px, 92vw);
+  max-height: 86vh;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
+
+/* Modal sections */
 .rtm-header {
   font-size: 16px;
   font-weight: 500;
@@ -123,22 +261,48 @@
   margin: 22px 10px var(--space-3);
   text-align: center;
 }
-.rtm-body { padding: 10px 16px; overflow: auto; }
-.rtm-footer { padding: 12px 16px; border-top: 1px solid rgba(0,0,0,.06); display: flex; gap: 8px; justify-content: flex-end; }
-.btn.primary { background: #0d6efd; color: #fff; border: 0; padding: 8px 14px; border-radius: 8px; cursor: pointer; }
+
+.rtm-body {
+  padding: 10px 16px;
+  overflow: auto;
+}
+
+.rtm-footer {
+  padding: 12px 16px;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+/* Modal buttons */
+.btn.primary {
+  background: #0d6efd;
+  color: #fff;
+  border: 0;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
 .btn.ghost {
   background: #fff;
-  border: 1px solid rgba(0,0,0,.2);
+  border: 1px solid rgba(0, 0, 0, 0.2);
   color: #666;
   padding: 8px 14px;
   border-radius: 8px;
   cursor: pointer;
 }
+
 .btn.ghost:hover {
   background: #f8f9fa;
 }
 
-/* RichText FieldShell styles */
+/* ==========================================================================
+   Rich Text Editor Components
+   ========================================================================== */
+
+/* Editor input styling */
 .input-like {
   min-height: 200px;
   min-width: 500px;
@@ -149,13 +313,24 @@
   cursor: text;
   display: block;
 }
+
 .input-like:focus {
   outline: none;
   border-color: #0d6efd;
-  box-shadow: 0 0 0 3px rgba(13,110,253,.12);
+  box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.12);
 }
-.muted { color: rgba(0,0,0,.55); }
-.hint { font-size: .85rem; margin-top: 4px; }
+
+/* Text styling */
+.muted {
+  color: rgba(0, 0, 0, 0.55);
+}
+
+.hint {
+  font-size: 0.85rem;
+  margin-top: 4px;
+}
+
+/* Layout grids */
 .grid-2 {
   display: flex;
   flex-wrap: wrap;
@@ -169,50 +344,85 @@
 .grid-2 .input-like {
   min-width: 500px;
 }
-ontentEditable styles */
-/*rRichTextModal ar {tEdiablestyls */
-.rtm-oolba {
-  display: flex; gap: 6px; flex-wrap: wrap;
-  padding: 8px 12px; border-bottom: 1px solid rgba(0,0,0,.06);
-}
-.rtm-toolbar button {
-  border: 1px solid rgba(0,0,0,.15); background: #fff; border-radius: 6px;
-  padding: 6px 10px; cursor: pointer; color: #000;
-}
-.rtm-editor {
-  min-height: 220px; outline: none;
-  border: 1px solid rgba(0,0,0,.1);
-  border-radius: 4px;
-  padding: 8px;
-}
-.rtm-editor:empty:before {
-  content: attr(data-placeholder);
-  color: rgba(0,0,0,.45);
+
+/* Editor toolbar */
+.rtm-toolbar {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  padding: 8px 12px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
 }
 
-/* Editor Cards styles */
+.rtm-toolbar button {
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  background: #fff;
+  border-radius: 6px;
+  padding: 6px 10px;
+  cursor: pointer;
+  color: #000;
+}
+
+/* Editor content area */
+.rtm-editor {
+  min-height: 220px;
+  outline: none;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  padding: 8px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  caret-color: auto;
+}
+
+.rtm-editor:empty:before {
+  content: attr(data-placeholder);
+  color: rgba(0, 0, 0, 0.45);
+  pointer-events: none;
+}
+
+/* ==========================================================================
+   Editor Card Components
+   ========================================================================== */
+
 .editor-card {
-  border: 1px solid rgba(0,0,0,.08);
+  border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 10px;
   padding: 12px;
   background: #fff;
 }
-.editor-card__head {
-  display: flex; align-items: center; justify-content: space-between; margin-bottom: .25rem;
-}
-.editor-card__title { margin: 0; font-size: 1rem; }
-.editor-card__preview { margin: .25rem 0 0; color: rgba(0,0,0,.7); }
 
-/* Neutralize any upstream mirroring and force normal LTR inside the modal */
+.editor-card__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.25rem;
+}
+
+.editor-card__title {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.editor-card__preview {
+  margin: 0.25rem 0 0;
+  color: rgba(0, 0, 0, 0.7);
+}
+
+/* ==========================================================================
+   Text Direction and RTL Handling
+   ========================================================================== */
+
+/* Force left-to-right text direction in modal for consistent editing */
 .rtm-overlay,
 .rtm-dialog {
   direction: ltr !important;
-  unicode-bidi: plaintext !important;    /* safest for mixed text */
+  unicode-bidi: plaintext !important;
   writing-mode: horizontal-tb !important;
-  transform: none !important;            /* cancel any parent flip/rotate */
+  transform: none !important;
 }
 
-/* Editor area */
+/* Ensure editor content is always LTR */
 .rtm-body,
 .rtm-editor,
 .rtm-editor * {
@@ -221,19 +431,10 @@ ontentEditable styles */
   text-align: left !important;
 }
 
-/* Keep typing natural and readable */
-.rtm-editor {
-  min-height: 220px;
-  outline: none;
-  white-space: pre-wrap;                 /* respect manual breaks */
-  word-break: break-word;
-  caret-color: auto;
-}
-
-/* Placeholder */
+/* Placeholder text direction */
 .rtm-editor:empty:before {
   content: attr(data-placeholder);
-  color: rgba(0,0,0,.45);
+  color: rgba(0, 0, 0, 0.45);
   pointer-events: none;
   direction: ltr !important;
   unicode-bidi: plaintext !important;

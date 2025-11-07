@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 from ..database import SessionLocal
 from ..utils.cv_text import extract_text_from_file, clean_extracted_text
-from ..services.ai_service import score_cv_to_job, score_components, parse_profile_requirements
+from ..services.ai_service import score_cv_to_job, score_components, parse_profile_requirements, _tok, _canonize_tokens, LEN_TIER_HARD, LEN_TIER_SOFT, MUST_CAP_NO_HIT
 # import relative
 from ..deps import get_db, get_current_user
 from .. import models, schemas
@@ -266,10 +266,22 @@ def debug_score(cv_id: int, job_id: int, db: Session = Depends(get_db),
         languages=langs,
         must_haves=musts,
     )
+    canon_count = len(_canonize_tokens(_tok(cv_text)))
     return {
         "cv_id": cv_id,
         "job_id": job_id,
         "components": comps,
-        "tokens": len(cv_text.split()),
+        "derived": {
+            "token_count_words": len(cv_text.split()),
+            "token_count_canon": canon_count,
+            "len_penalty_tier": (
+                "NONE" if canon_count >= LEN_TIER_SOFT else
+                "SOFT" if canon_count >= LEN_TIER_HARD else
+                "HARD"
+            ),
+            "must_cap_applied": comps["must_cap"] is not None,
+            "must_cap_value": comps["must_cap"],
+            "must_cap_reason": None if comps["must_cap"] is None else "no must-have tokens matched",
+        },
         "preview": cv_text[:500] if cv_text else "",
     }

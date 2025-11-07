@@ -1,0 +1,61 @@
+.modal-backdrop {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000;
+}
+
+.companyDialog {
+  margin: auto; width: 90vw; max-width: 500px; background: var(--color-card); border: none; border-radius: 14px; padding: var(--space-4); box-shadow: 0 8px 32px rgba(0,0,0,0.3); color: var(--color-ink);
+}
+
+.companyDialog::backdrop { display: none; }
+
+.closeBtn {
+  align-self: flex-start; background: none; border: none; font-size: 24px; cursor: pointer; padding: 4px; margin-bottom: var(--space-3); color: var(--color-ink);
+}
+
+.companyDialog__header {
+  text-align: center; margin-bottom: var(--space-4);
+}
+
+.companyDialog__brand {
+  margin-bottom: var(--space-3);
+}
+
+.companyDialog__logo {
+  width: 72px; height: 72px; border-radius: 12px; border: 2px solid var(--color-border); background: white; object-fit: cover; margin: 0 auto;
+}
+
+.companyDialog__logo--default {
+  width: 72px; height: 72px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold; color: var(--color-ink); background: var(--color-chip); border: 2px solid var(--color-chip-border);
+}
+
+.companyDialog__title {
+  margin: var(--space-3) 0 var(--space-2) 0; font-size: 1.4rem; font-weight: 700;
+}
+
+.companyDialog__sector {
+  font-size: 0.95rem; color: var(--color-ink-muted);
+}
+
+.companyDialog__overview {
+  margin-bottom: var(--space-4);
+}
+
+.companyDialog__overview h2 {
+  margin-bottom: var(--space-2); font-size: 1.2rem; font-weight: 600;
+}
+
+.companyDialog__overview p {
+  line-height: 1.5; color: var(--color-ink);
+}
+
+.companyDialog__actions {
+  display: flex; justify-content: center;
+}
+
+.btn {
+  appearance: none; border-radius: 12px; font-weight: 700; padding: 10px 20px; cursor: pointer; border: 1px solid transparent;
+}
+
+.btn--outline {
+  background: #fff; color: var(--color-primary); border-color: #cfe0ff;
+}

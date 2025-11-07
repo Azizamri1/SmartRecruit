@@ -4,6 +4,7 @@ import SRMultiStep, { SRSection } from "../components/forms/SRMultiStep";
 import { useFormWizard } from "../components/forms/useFormWizard";
 import api from "../Services/apiClient";
 import SuccessModal from "../components/common/SuccessModal";
+import { Check, X } from "lucide-react";
 import "./ApplicationForm.css";
 
 interface Job {
@@ -315,12 +316,12 @@ export default function ApplicationForm() {
               }}>
                 <h4 style={{ margin: '0 0 12px 0', color: 'rgba(255,255,255,0.9)' }}>CV Upload</h4>
                 {currentCv ? (
-                  <div style={{ color: '#1db954', fontWeight: '500' }}>
-                    âœ“ CV uploaded: {currentCv.file_path.split("/").pop()}
+                  <div style={{ color: '#1db954', fontWeight: '500', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <Check size={16} /> CV uploaded: {currentCv.file_path.split("/").pop()}
                   </div>
                 ) : (
-                  <div style={{ color: '#ff6b6b', fontWeight: '500' }}>
-                    âš  No CV uploaded yet
+                  <div style={{ color: '#ff6b6b', fontWeight: '500', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <X size={16} /> No CV uploaded yet
                   </div>
                 )}
                 <label className="cv-upload-btn" style={{
@@ -417,4 +418,3 @@ export default function ApplicationForm() {
     </>
   );
 }
-

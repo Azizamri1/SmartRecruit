@@ -1,6 +1,6 @@
 ﻿import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { Upload, Archive, Trash2, Pencil, ClipboardList, FileText, Package } from 'lucide-react';
+import { Upload, Archive, Trash2, Pencil, ClipboardList, FileText, Package, Search, X } from 'lucide-react';
 import {
   getCompanyJobs,
   bulkStatus,
@@ -253,9 +253,17 @@ export default function CompanyJobsManager() {
         </div>
         <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
           <div style={{ position: "relative" }}>
+            <Search size={16} style={{
+              position: "absolute",
+              left: "12px",
+              top: "50%",
+              transform: "translateY(-50%)",
+              color: "#666",
+              zIndex: 1
+            }} />
             <input
               className="input"
-              placeholder="ðŸ” Search jobs..."
+              placeholder="Search jobs..."
               value={query}
               onChange={e => setQuery(e.target.value)}
               style={{
@@ -263,7 +271,7 @@ export default function CompanyJobsManager() {
                 background: "rgba(255, 255, 255, 0.9)",
                 border: "1px solid rgba(255,255,255,0.3)",
                 borderRadius: "12px",
-                padding: "12px 16px",
+                padding: "12px 16px 12px 40px",
                 fontSize: "14px",
                 color: "#333",
                 boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
@@ -366,7 +374,7 @@ export default function CompanyJobsManager() {
             fontSize: "14px",
             fontWeight: "500"
           }}>
-            <span style={{ fontSize: "16px" }}>âœ“</span>
+            <X size={16} />
             <strong style={{ color: "#ffffff" }}>{selected.size}</strong>
             job{selected.size > 1 ? 's' : ''} selected
           </div>
@@ -508,4 +516,3 @@ function EmptyState({ title, subtitle, cta }:{ title:string; subtitle?:string; c
     </div>
   );
 }
-
