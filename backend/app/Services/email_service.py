@@ -1,48 +1,124 @@
-import os
-import smtplib
+# backend/app/services/email_service.py
 from email.message import EmailMessage
-from typing import Optional
+from email.utils import formataddr
+import smtplib
+import socket
+import logging
+from typing import Optional, Tuple
+from ..config import settings
 
-SMTP_HOST = os.getenv("SMTP_HOST")
-SMTP_PORT = int(os.getenv("SMTP_PORT", "587"))
-SMTP_USER = os.getenv("SMTP_USER")
-SMTP_PASS = os.getenv("SMTP_PASS")
-FROM_EMAIL = os.getenv("FROM_EMAIL", "noreply@smartrecruit.tn")
+log = logging.getLogger("smartrecruit.email")
 
-def _smtp_enabled() -> bool:
-    return bool(SMTP_HOST and SMTP_USER and SMTP_PASS)
+SENDER_TUPLE = (settings.EMAIL_FROM_NAME or "TT SmartRecruit", settings.EMAIL_FROM)
 
-def _send_raw(to_email: str, subject: str, html: str, text: Optional[str] = None):
+def _build_message(to_email: str, subject: str, html: str, text: Optional[str] = None) -> EmailMessage:
     msg = EmailMessage()
-    msg["From"] = FROM_EMAIL
+    msg["From"] = formataddr(SENDER_TUPLE)
     msg["To"] = to_email
     msg["Subject"] = subject
-    msg.set_content(text or "")
-    msg.add_alternative(html, subtype="html")
-    with smtplib.SMTP(SMTP_HOST, SMTP_PORT) as s:
-        s.starttls()
-        s.login(SMTP_USER, SMTP_PASS)
-        s.send_message(msg)
+    # Plain first, then HTML alternative
+    msg.set_content(text or "", subtype="plain", charset="utf-8")
+    msg.add_alternative(html or "<html><body></body></html>", subtype="html", charset="utf-8")
+    return msg
 
-def send_email(to_email: str, subject: str, html: str, text: Optional[str] = None):
+def send_email(to_email: str, subject: str, html: str, text: Optional[str] = None) -> bool:
     """
-    If SMTP envs are missing, we just log to console (dev-friendly, no crash).
+    Synchronous sender; safe to schedule via BackgroundTasks.
+    Returns True if accepted (including DRY_RUN), False on failure.
     """
-    if not _smtp_enabled():
-        print(f"[EMAIL:DRYRUN] to={to_email} subj={subject}\n{text or ''}\n{html}\n")
-        return
-    _send_raw(to_email, subject, html, text)
+    msg = _build_message(to_email, subject, html, text)
 
-# Templates (minimal)
-def tpl_submission(candidate_email: str, job_title: str):
-    subj = f"Votre candidature a été reçue — {job_title}"
-    txt = f"Bonjour,\n\nNous avons bien reçu votre candidature pour: {job_title}."
-    html = f"<p>Bonjour,</p><p>Nous avons bien reçu votre candidature pour: <b>{job_title}</b>.</p>"
-    return subj, html, txt
+    # DRY RUN (dev/test) — logs but does not connect
+    if settings.EMAIL_DRY_RUN or not settings.SMTP_SERVER:
+        log.info("[EMAIL:DRYRUN] to=%s subj=%s from=%s", to_email, subject, SENDER_TUPLE[1])
+        return True
 
-def tpl_decision(candidate_email: str, job_title: str, status: str):
-    status_label = "Acceptée" if status == "accepted" else "Rejetée"
-    subj = f"Mise à jour — {job_title} : {status_label}"
-    txt = f"Bonjour,\n\nVotre candidature pour '{job_title}' a été {status_label.lower()}."
-    html = f"<p>Bonjour,</p><p>Votre candidature pour <b>{job_title}</b> a été <b>{status_label}</b>.</p>"
-    return subj, html, txt
+    try:
+        if settings.SMTP_SSL:
+            with smtplib.SMTP_SSL(settings.SMTP_SERVER, settings.SMTP_PORT, timeout=15) as s:
+                if settings.SMTP_USER and settings.SMTP_PASSWORD:
+                    s.login(settings.SMTP_USER, settings.SMTP_PASSWORD)
+                s.send_message(msg)
+        else:
+            with smtplib.SMTP(settings.SMTP_SERVER, settings.SMTP_PORT, timeout=15) as s:
+                s.ehlo()
+                if settings.SMTP_STARTTLS:
+                    s.starttls()
+                    s.ehlo()
+                if settings.SMTP_USER and settings.SMTP_PASSWORD:
+                    s.login(settings.SMTP_USER, settings.SMTP_PASSWORD)
+                s.send_message(msg)
+        log.info("[EMAIL:sent] to=%s subj=%s", to_email, subject)
+        return True
+    except (smtplib.SMTPException, OSError, socket.timeout) as e:
+        log.error("[EMAIL:error] to=%s subj=%s err=%r", to_email, subject, e)
+        return False
+
+# ------------------ Templates (concise, name-aware) ------------------ #
+
+def tpl_submission(candidate_name: str, job_title: str, company_name: Optional[str] = None,
+                   application_url: Optional[str] = None) -> Tuple[str, str, str]:
+    company = f" chez {company_name}" if company_name else ""
+    subj = f"Candidature reçue — {job_title}"
+    greeting = f"Bonjour {candidate_name}," if candidate_name else "Bonjour,"
+    body = (
+        f"{greeting}\n\n"
+        f"Nous avons bien reçu votre candidature pour le poste « {job_title} »{company}."
+        " Notre équipe va l’examiner et vous reviendra rapidement.\n\n"
+        f"{('Consulter votre dossier : ' + application_url) if application_url else ''}\n\n"
+        "— TT SmartRecruit"
+    )
+    html = f"""
+    <html><body>
+      <p>{greeting}</p>
+      <p>Nous avons bien reçu votre candidature pour le poste <b>{job_title}</b>{company}.
+         Notre équipe va l’examiner et vous reviendra rapidement.</p>
+      {f'<p><a href="{application_url}">Consulter votre dossier</a></p>' if application_url else ''}
+      <p>— TT SmartRecruit</p>
+    </body></html>
+    """
+    return subj, html, body
+
+def tpl_decision(candidate_name: str, job_title: str, status: str,
+                 company_name: Optional[str] = None, next_steps_url: Optional[str] = None) -> Tuple[str, str, str]:
+    company = f" chez {company_name}" if company_name else ""
+    status_label = "acceptée" if status == "accepted" else "rejetée"
+    subj = f"Mise à jour — {job_title} : {status_label.capitalize()}"
+    greeting = f"Bonjour {candidate_name}," if candidate_name else "Bonjour,"
+    if status == "accepted":
+        extra = f'Prochaine étape : <a href="{next_steps_url}">compléter votre dossier</a>.' if next_steps_url else ""
+        ptxt  = f"Prochaine étape : {next_steps_url}\n" if next_steps_url else ""
+    else:
+        extra = "Vous pouvez continuer à postuler à d’autres offres qui vous correspondent."
+        ptxt  = extra + "\n"
+    body = (
+        f"{greeting}\n\n"
+        f"Votre candidature pour « {job_title} »{company} a été {status_label}.\n"
+        f"{ptxt}\n"
+        "Merci pour votre intérêt.\n\n"
+        "— TT SmartRecruit"
+    )
+    html = f"""
+    <html><body>
+      <p>{greeting}</p>
+      <p>Votre candidature pour <b>{job_title}</b>{company} a été <b>{status_label}</b>.</p>
+      <p>{extra}</p>
+      <p>Merci pour votre intérêt.</p>
+      <p>— TT SmartRecruit</p>
+    </body></html>
+    """
+    return subj, html, body
+
+def applicant_display_name(*, user=None, application=None) -> str:
+    # Fallback logic if needed; keep here so templates can be name-aware everywhere.
+    if user and getattr(user, "full_name", None):
+        return user.full_name
+    if user and getattr(user, "first_name", None):
+        fn = user.first_name or ""
+        ln = getattr(user, "last_name", "") or ""
+        nm = (fn + " " + ln).strip()
+        if nm:
+            return nm
+    if user and getattr(user, "email", None):
+        return user.email.split("@", 1)[0]
+    return "candidat"

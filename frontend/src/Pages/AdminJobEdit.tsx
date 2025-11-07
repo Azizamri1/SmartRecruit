@@ -6,7 +6,7 @@ import { getJob, updateJob } from "../Services/jobsListApi";
 import SuccessModal from "../components/common/SuccessModal";
 import RichTextModal from "../components/form/RichTextModal";
 import { linesToHtml, htmlToLines } from "../utils/richList";
-import { Trash2, Pencil } from "lucide-react";
+import { Trash2, Pencil, X } from "lucide-react";
 
 const steps = ["Basics", "Contract & Location", "Qualifications", "Role Content", "Compensation & Timeline", "Preview"];
 
@@ -25,7 +25,7 @@ function SkillsChips({ value, onChange }: { value: string[]; onChange: (arr: str
         {(value || []).map(v => (
           <span key={v} style={{ border: "1px solid #9CA3AF", borderRadius: 999, padding: "6px 10px", display: "inline-flex", alignItems: "center", gap: 8 }}>
             {v}
-            <button type="button" onClick={() => remove(v)} style={{ border: 0, background: "transparent", cursor: "pointer", color: "#000", fontSize: '16px', padding: '0.1em 0.1em' }} aria-label={`Remove ${v}`}>Ã—</button>
+            <button type="button" onClick={() => remove(v)} style={{ border: 0, background: "transparent", cursor: "pointer", color: "#000", fontSize: '16px', padding: '0.1em 0.1em' }} aria-label={`Remove ${v}`}><X size={16} /></button>
           </span>
         ))}
       </div>
@@ -411,7 +411,7 @@ export default function AdminJobEdit() {
                   onClick={() => setShowCompanyOverviewEditor(true)}
                   style={{flex: 1, justifyContent: 'flex-start'}}
                 >
-                  {data.company_overview ? 'âœï¸ Edit Company Overview' : 'ðŸ“ Add Company Overview'}
+                  {data.company_overview ? <><Pencil size={16} /> Edit Company Overview</> : 'ðŸ“ Add Company Overview'}
                 </button>
                 {data.company_overview && (
                   <button
@@ -420,7 +420,7 @@ export default function AdminJobEdit() {
                     onClick={() => patch({company_overview: ''})}
                     style={{padding: '8px'}}
                   >
-                    ðŸ—‘ï¸
+                    <Trash2 size={16} />
                   </button>
                 )}
               </div>
@@ -437,7 +437,7 @@ export default function AdminJobEdit() {
                   onClick={() => setShowOfferDescriptionEditor(true)}
                   style={{flex: 1, justifyContent: 'flex-start'}}
                 >
-                  {data.offer_description ? 'âœï¸ Edit Offer Description' : 'ðŸ“ Add Offer Description'}
+                  {data.offer_description ? <><Pencil size={16} /> Edit Offer Description</> : 'ðŸ“ Add Offer Description'}
                 </button>
                 {data.offer_description && (
                   <button
@@ -446,7 +446,7 @@ export default function AdminJobEdit() {
                     onClick={() => patch({offer_description: ''})}
                     style={{padding: '8px'}}
                   >
-                    ðŸ—‘ï¸
+                    <Trash2 size={16} />
                   </button>
                 )}
               </div>
@@ -464,7 +464,7 @@ export default function AdminJobEdit() {
                   onClick={() => setShowMissionsEditor(true)}
                   style={{flex: 1, justifyContent: 'flex-start'}}
                 >
-                  {missionsHTML ? 'âœï¸ Edit Missions' : 'ðŸ“ Add Missions'}
+                  {missionsHTML ? <><Pencil size={16} /> Edit Missions</> : 'ðŸ“ Add Missions'}
                 </button>
                 {missionsHTML && (
                   <button
@@ -473,7 +473,7 @@ export default function AdminJobEdit() {
                     onClick={() => { setMissions([]); setMissionsHTML(""); }}
                     style={{padding: '8px'}}
                   >
-                    ðŸ—‘ï¸
+                    <Trash2 size={16} />
                   </button>
                 )}
               </div>
@@ -490,7 +490,7 @@ export default function AdminJobEdit() {
                   onClick={() => setShowProfileRequirementsEditor(true)}
                   style={{flex: 1, justifyContent: 'flex-start'}}
                 >
-                  {data.profile_requirements ? 'âœï¸ Edit Profile Requirements' : 'ðŸ“ Add Profile Requirements'}
+                  {data.profile_requirements ? <><Pencil size={16} /> Edit Profile Requirements</> : 'ðŸ“ Add Profile Requirements'}
                 </button>
                 {data.profile_requirements && (
                   <button
@@ -499,7 +499,7 @@ export default function AdminJobEdit() {
                     onClick={() => patch({profile_requirements: ''})}
                     style={{padding: '8px'}}
                   >
-                    ðŸ—‘ï¸
+                    <Trash2 size={16} />
                   </button>
                 )}
               </div>

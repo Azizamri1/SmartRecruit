@@ -11,7 +11,6 @@ import JobCardsGrid from "../components/jobs/JobCardsGrid";
 import { type JobCardProps } from "../components/jobs/JobCard";
 import { getJobs } from "../Services/jobsListApi";
 import type { JobDetail } from "../Services/jobsApi";
-import { toAbsoluteMedia } from "../Services/media";
 
 type User = {
   full_name?: string;
@@ -131,7 +130,7 @@ export default function Jobs(){
           )}
           {!loading && cards.length === 0 && (
             <div style={{padding:"32px", textAlign:"center"}}>
-              <div style={{fontSize:"20px"}}>Aucune offre ne correspond Ã  votre recherche</div>
+              <div style={{fontSize:"20px"}}>Aucune offre ne correspond à votre recherche</div>
               <div style={{color:"var(--ink-500)"}}>Essayez d'effacer des filtres ou utilisez d'autres mots-clés.</div>
             </div>
           )}

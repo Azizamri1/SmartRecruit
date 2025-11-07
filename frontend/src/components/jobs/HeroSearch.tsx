@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function HeroSearch({ defaultQuery, onSubmit }:{
   defaultQuery?: string; onSubmit:(q:string)=>void;
@@ -56,7 +56,7 @@ export default function HeroSearch({ defaultQuery, onSubmit }:{
                 width:48, height:48, borderRadius:"50%", background:"#1F2937",
                 color:"#fff", border:"none", cursor:"pointer", display:"grid", placeItems:"center"
               }}
-            >ðŸ”Ž</button>
+            >🔎</button>
           </form>
         </div>
       </div>

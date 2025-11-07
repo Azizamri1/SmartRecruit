@@ -1,0 +1,11 @@
+.sectionCard{
+  background:var(--color-card); border:1px solid var(--color-border);
+  border-radius:var(--radius-card); box-shadow:var(--shadow-1); padding:var(--space-4);
+}
+.sectionCard__header{ display:flex; align-items:center; gap:var(--space-2); margin-bottom:var(--space-3); }
+.sectionCard__icon{
+  width:28px; height:28px; border-radius:10px; display:grid; place-items:center;
+  background:var(--color-chip); border:1px solid var(--color-chip-border); font-size:.95rem;
+}
+.sectionCard__title{ margin:0; font-size:1rem; color:var(--color-ink); }
+.sectionCard__body{ color:var(--color-ink); }
