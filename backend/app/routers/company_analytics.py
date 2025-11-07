@@ -68,15 +68,16 @@ def company_summary(db: Session = Depends(get_db), user=Depends(get_current_user
             models.Job.title.label("job_title"),
             models.Application.applied_at,
             models.Application.score,
+            models.Application.status,
         )
         .join(models.Job, models.Job.id == models.Application.job_id)
         .order_by(models.Application.applied_at.desc().nullslast())
-        .limit(10)
+        .limit(5)
     )
     if owner_id:
         recent_q = recent_q.filter(models.Job.owner_user_id == owner_id)
     recent_apps = [
-        dict(id=r.id, job_id=r.job_id, job_title=r.job_title, applied_at=r.applied_at, score=r.score)
+        dict(id=r.id, job_id=r.job_id, job_title=r.job_title, applied_at=r.applied_at, score=r.score, status=r.status)
         for r in recent_q.all()
     ]
 
@@ -211,16 +212,16 @@ def company_job_apps(
             A.status,
             A.score,
             A.applied_at,
+            A.cv_id,
             J.title.label("job_title"),
             U.email.label("candidate_email"),
-            # ⚠️ intentionally NOT selecting A.cv_id (column doesn't exist in DB)
         )
         .join(J, J.id == A.job_id)
         .join(U, U.id == A.user_id)
         .filter(A.job_id == job_id)
     )
 
-    if status in {"pending", "under_review", "accepted", "rejected"}:
+    if status in {"pending", "accepted", "rejected"}:
         q = q.filter(A.status == status)
 
     q = q.order_by(*SORT_MAP.get(sort, SORT_MAP["score_desc"]))
@@ -229,14 +230,14 @@ def company_job_apps(
     # shape to the frontend's expected keys
     return [
         {
-            "id": r.id,
-            "job_id": r.job_id,
-            "job_title": r.job_title,
-            "status": r.status,
-            "score": r.score,
-            "applied_at": r.applied_at.isoformat() if r.applied_at else None,
-            "candidate_email": r.candidate_email,
-            # "cv_id": None,  # keep omitted (frontend has it optional)
+            "id": r[0],
+            "job_id": r[1],
+            "job_title": r[6],
+            "status": r[2],
+            "score": r[3],
+            "applied_at": r[4].isoformat() if r[4] else None,
+            "cv_id": r[5],
+            "candidate_email": r[7],
         }
         for r in rows
     ]

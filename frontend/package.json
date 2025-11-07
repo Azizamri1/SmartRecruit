@@ -8,13 +8,20 @@
     "start": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "tsprune": "ts-prune --ignore 'src/vite-env.d.ts'",
+    "deadcode": "ts-prune --ignore 'src/vite-env.d.ts' --error",
+    "deadcode-report": "ts-prune --ignore 'src/vite-env.d.ts' > .cleanup.frontend.tsprune.txt",
+    "deps-check": "depcheck --json",
+    "deps-report": "depcheck --ignores 'vite,@types/*,@vitejs/*,typescript-eslint' > .cleanup.frontend.depcheck.txt",
+    "maintenance": "npm run deadcode-report && npm run deps-report"
   },
   "dependencies": {
     "axios": "^1.12.2",
     "chart.js": "^4.5.0",
-    "framer-motion": "^12.23.22",
+    "lottie-react": "^2.4.1",
     "lottie-web": "^5.13.0",
+    "lucide-react": "^0.546.0",
     "react": "^19.1.1",
     "react-chartjs-2": "^5.3.0",
     "react-dom": "^19.1.1",

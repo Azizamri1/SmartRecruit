@@ -1,4 +1,5 @@
-import { Navigate } from "react-router-dom";
+﻿import { Navigate } from "react-router-dom";
+import { getToken } from "../../Services/apiClient";
 
 type Props = {
   children: React.ReactNode;
@@ -22,7 +23,7 @@ function readMe(): Me | null {
 }
 
 export default function ProtectedRoute({ children, adminOnly, roles }: Props) {
-  const token = localStorage.getItem("token");
+  const token = getToken();
   if (!token) return <Navigate to="/auth/signin" replace />;
 
   const me = readMe();
@@ -42,3 +43,4 @@ export default function ProtectedRoute({ children, adminOnly, roles }: Props) {
 
   return <>{children}</>;
 }
+

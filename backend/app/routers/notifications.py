@@ -12,9 +12,9 @@ async def test_email(
 ):
     """
     Test email functionality by sending a status email.
-    Query params: recipient, status (accepted/rejected/under_review), full_name
+    Query params: recipient, status (accepted/rejected/pending), full_name
     """
-    if status not in ["accepted", "rejected", "under_review"]:
+    if status not in ["accepted", "rejected", "pending"]:
         raise HTTPException(status_code=400, detail="Invalid status")
 
     try:

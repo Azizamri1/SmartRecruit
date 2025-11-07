@@ -1,21 +1,19 @@
-"""unify_experience_to_single_string_field
+﻿"""unify_experience_to_single_string_field
 
 Revision ID: ceacb6415b96
 Revises: e6d743d8a2a6
 Create Date: 2025-10-13 15:09:59.166277
 
 """
-from typing import Sequence, Union
 
-from alembic import op
 import sqlalchemy as sa
-
+from alembic import op
 
 # revision identifiers, used by Alembic.
-revision: str = 'ceacb6415b96'
-down_revision: Union[str, Sequence[str], None] = 'e6d743d8a2a6'
-branch_labels: Union[str, Sequence[str], None] = None
-depends_on: Union[str, Sequence[str], None] = None
+revision = "ceacb6415b96"
+down_revision = "e6d743d8a2a6"
+branch_labels = None
+depends_on = None
 
 
 def upgrade() -> None:
@@ -29,7 +27,15 @@ def upgrade() -> None:
     op.add_column("jobs", sa.Column("salary_min", sa.Integer(), nullable=True))
     op.add_column("jobs", sa.Column("salary_max", sa.Integer(), nullable=True))
     op.add_column("jobs", sa.Column("salary_currency", sa.Text(), nullable=True))
-    op.add_column("jobs", sa.Column("salary_is_confidential", sa.Boolean(), server_default=sa.text("false"), nullable=False))
+    op.add_column(
+        "jobs",
+        sa.Column(
+            "salary_is_confidential",
+            sa.Boolean(),
+            server_default=sa.text("false"),
+            nullable=False,
+        ),
+    )
     op.add_column("jobs", sa.Column("education_level", sa.Text(), nullable=True))
     op.add_column("jobs", sa.Column("company_overview", sa.Text(), nullable=True))
     op.add_column("jobs", sa.Column("offer_description", sa.Text(), nullable=True))
@@ -55,3 +61,4 @@ def downgrade() -> None:
     op.drop_column("jobs", "location_country")
     op.drop_column("jobs", "location_city")
     op.drop_column("jobs", "company_logo_url")
+

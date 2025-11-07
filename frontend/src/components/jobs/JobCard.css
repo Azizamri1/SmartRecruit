@@ -6,8 +6,6 @@
 }
 .jobsTheme .jobCard:hover{ transform:translateY(-2px); box-shadow:0 8px 32px rgba(0,0,0,.08); border-color:#dde3ee; }
 .jobsTheme .jobCard__overlay{ position:absolute; inset:0; border-radius:inherit; z-index:1; }
-.jobsTheme .jobCard__header{ position:relative; z-index:2; display:flex; gap:var(--space-3); align-items:center; }
-.jobsTheme .jobCard__logo{ width:60px; height:60px; border-radius:12px; border:1px solid var(--color-border); background:#f5f7fb; object-fit:cover; }
 .jobsTheme .jobCard__headText{ min-width:0; }
 .jobsTheme .jobCard__title{ margin:0; font-size:18px; line-height:1.25; color:var(--color-ink); }
 .jobsTheme .jobCard__company{ color:var(--color-ink-muted); font-size:.95rem; }
@@ -70,9 +68,25 @@
 }
 .jobsTheme .jobCard--tj:hover{ transform:translateY(-4px); box-shadow:var(--shadow-card-hover); }
 
-.jobsTheme .jobCard__header{ display:flex; gap:16px; margin-bottom:16px; }
-.jobsTheme .jobCard__logoWrap{ width:56px; height:56px; border-radius:8px; background:var(--bg-100); border:1px solid var(--border); overflow:hidden; }
-.jobsTheme .jobCard__logo{ width:25%; height:100%; object-fit:cover; }
+.jobsTheme .jobCard__header{ position:relative; z-index:2; display:flex; gap:16px; align-items:flex-start; }
+
+.jobsTheme .jobCard__brand{
+  width: 48px; height: 48px;
+  border-radius: 8px;
+  overflow: hidden;
+  flex: 0 0 auto;
+  border: 1px solid rgba(0,0,0,0.08);
+  background: #fff;
+}
+
+.jobsTheme .jobCard__brandImg{
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.jobsTheme .jobCard__left { display:flex; gap:10px; align-items:center; min-width:0; }
+
+.jobsTheme .jobCard__logo{ width:60px; height:60px; border-radius:12px; border:1px solid var(--color-border); background:#f5f7fb; object-fit:cover; }
 .jobsTheme .jobCard__title{ margin:0 0 4px 0; font-size:18px; font-weight:700; color:var(--ink-900); line-height:1.4; }
 .jobsTheme .jobCard__company{ font-size:14px; color:var(--ink-500); }
 
@@ -102,6 +116,11 @@
 
 .jobsTheme .jlBtn--outlineBlue{ color:var(--primary-blue); border-color:var(--primary-blue); }
 .jobsTheme .jlBtn--outlineBlue:hover{ background:#EEF2FF; }
+
+.jobsTheme .jlBtn--applied{
+  background:#10B981; color:#fff; border-color:#10B981;
+  cursor:default; opacity:1;
+}
 
 /* keep card width from grid */
 .jobsTheme .jobCard{ width:var(--jobs-card-width); max-width:100%; }

@@ -1,4 +1,4 @@
-import api from "./apiClient";
+﻿import api from "./apiClient";
 
 export type AdminJob = {
   id: number;
@@ -65,3 +65,27 @@ export const bulkSetApplicationStatus = async (
   const fail = results.length - ok;
   return { ok, fail };
 };
+
+// --- Debug score (admin-only) ---
+export async function debugScore(cv_id: number, job_id: number) {
+  const { data } = await api.post("/applications/_debug/score", null, {
+    params: { cv_id, job_id },
+  });
+  return data as {
+    cv_id: number;
+    job_id: number;
+    tokens: number;
+    components: {
+      sim: number;
+      skills: number;
+      requirements: number;
+      profile: number;
+      langs: number;
+      len_penalty: number;
+      must_cap: number | null;
+      base_before_penalties: number;
+    };
+    preview?: string;
+  };
+}
+

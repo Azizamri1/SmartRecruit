@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import FilterModal from "./FilterModal";
 import JobCount from "./JobCount";
 
@@ -55,3 +55,4 @@ export default function FilterBar({
     </>
   );
 }
+

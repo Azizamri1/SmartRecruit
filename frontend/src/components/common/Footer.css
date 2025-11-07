@@ -1,0 +1,113 @@
+/* SmartRecruit Footer */
+.sr-footer {
+  margin-top: auto;
+  padding: 10px 0;
+  background: rgb(0 0 0 / 40%);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(8px);
+}
+
+.sr-footer__content {
+  max-width: var(--container);
+  margin: 0 auto;
+  padding: 0 clamp(16px, 4vw, 32px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  text-align: center;
+}
+
+.sr-footer__logo {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  margin-right: 10px;
+}
+
+.sr-footer__brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.sr-footer__brand-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sr-footer__brand span {
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 0.5px;
+}
+
+.sr-footer__brand p {
+  margin: 0;
+  font-size: 14px;
+  color: #aeb7c8;
+  opacity: 0.8;
+}
+
+.sr-footer__social {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.sr-footer__social-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: #e9eef8;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.sr-footer__social-link:hover {
+  background: rgba(255,255,255,0.15);
+  border-color: rgba(255,255,255,0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.sr-footer__icon {
+  width: 20px;
+  height: 20px;
+}
+
+.sr-footer__copyright p {
+  margin: 0;
+  font-size: 12px;
+  color: #aeb7c8;
+  opacity: 0.7;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .sr-footer__content {
+    gap: 16px;
+  }
+
+  .sr-footer__social {
+    gap: 12px;
+  }
+
+  .sr-footer__social-link {
+    width: 36px;
+    height: 36px;
+  }
+
+  .sr-footer__icon {
+    width: 18px;
+    height: 18px;
+  }
+}

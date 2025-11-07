@@ -22,7 +22,7 @@
 
   /* grid knobs (centered fixed columns) */
   --jobs-card-width: 384px;   /* bigger, TuniJobs-like */
-  --jobs-gap: 28px;           /* desktop gap */
+  --jobs-gap: 20px;           /* desktop gap */
   --jobs-container: 1400px;   /* overall container */
 
   /* compatibility aliases for existing job CSS if needed */

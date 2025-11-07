@@ -69,7 +69,10 @@ if not os.path.exists("uploads"):
     os.makedirs("uploads")
 if not os.path.exists("uploads/company_logos"):
     os.makedirs("uploads/company_logos")
+if not os.path.exists("uploads/avatars"):
+    os.makedirs("uploads/avatars")
 app.mount("/static/company_logos", StaticFiles(directory="uploads/company_logos"), name="company_logos")
+app.mount("/static/avatars", StaticFiles(directory="uploads/avatars"), name="avatars")
 
 # --- Simple health check ---
 @app.get("/health")

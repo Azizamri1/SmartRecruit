@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from jose import JWTError, jwt
 import os
 from dotenv import load_dotenv
+from typing import Optional
 
 from app.database import get_db
 from app import models
@@ -40,6 +41,21 @@ def get_current_user(
     if user is None:
         raise credentials_exc
     return user
+
+def get_current_user_optional(
+    token: str = Depends(oauth2_scheme),
+    db: Session = Depends(get_db),
+) -> Optional[models.User]:
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        sub = payload.get("sub")
+        if sub is None:
+            return None
+        user_id = int(sub)
+        user = db.query(models.User).get(user_id)
+        return user
+    except Exception:
+        return None
 
 def require_admin(current_user: models.User = Depends(get_current_user)) -> models.User:
     if not getattr(current_user, "is_admin", False):

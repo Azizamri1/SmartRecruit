@@ -1,7 +1,8 @@
-import { useState, useEffect } from "react";
+﻿import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import BackgroundAnimation from "../components/common/BackgroundAnimation";
 import {login, getMe} from "../Services/authService";
+import { setAuthTokenAndStartWatcher } from "../Services/apiClient";
 import "./Login.css";
 
 export default function Login() {
@@ -29,20 +30,29 @@ export default function Login() {
 
     try {
       const res = await login(form);
-      localStorage.setItem("token", res.data.access_token);
+      setAuthTokenAndStartWatcher(res.data.access_token);
 
       // Cache /users/me for navbar, navigate accordingly
       try {
         const meRes = await getMe();
-        localStorage.setItem("me", JSON.stringify(meRes.data));
-        if (meRes.data.is_admin) {
-          navigate("/admin/applications", { replace: true });
-        } else {
-          navigate("/jobs", { replace: true });
+        const me = meRes.data ?? {};
+        // ensure a username fallback if backend doesn't provide one
+        if (!me.username) {
+          me.username = (me.full_name && me.full_name.trim())
+            || (typeof me.email === "string" && me.email.includes("@") ? me.email.split("@")[0] : null);
         }
+        localStorage.setItem("me", JSON.stringify(me));
+
+        // Post-login redirect
+        const back = sessionStorage.getItem("postLoginRedirect");
+        sessionStorage.removeItem("postLoginRedirect");
+        const redirectTo = back || (me.is_admin ? "/admin/applications" : "/jobs");
+        navigate(redirectTo, { replace: true });
       } catch {
         // fallback if /users/me fails
-        navigate("/jobs", { replace: true });
+        const back = sessionStorage.getItem("postLoginRedirect");
+        sessionStorage.removeItem("postLoginRedirect");
+        navigate(back || "/jobs", { replace: true });
       }
     } catch (err) {
       setError("Invalid email or password");
@@ -134,3 +144,4 @@ export default function Login() {
     </div>
   );
 }
+

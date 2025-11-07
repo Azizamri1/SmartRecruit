@@ -1,72 +1,93 @@
-# backend/app/routers/cvs.py
-from fastapi import APIRouter, Depends, UploadFile, File, HTTPException
+# file: backend/app/routers/cvs.py
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
+from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
-from ..database import get_db
-from ..deps import get_current_user
-from .. import models
-import os, uuid, shutil
+from pathlib import Path
+from uuid import uuid4
 from datetime import datetime, timezone
 
+from .. import models, schemas
+from ..deps import get_db, get_current_user
+
 router = APIRouter(prefix="/cvs", tags=["cvs"])
-UPLOAD_DIR = os.getenv("CV_UPLOAD_DIR", "uploads/cv")
 
-def _is_pdf(upload: UploadFile) -> bool:
-    # 1) extension
-    try:
-        if upload.filename and upload.filename.lower().endswith(".pdf"):
-            return True
-    except Exception:
-        pass
-    # 2) content type
-    if (upload.content_type or "").lower() == "application/pdf":
-        return True
-    # 3) magic header
-    try:
-        head = upload.file.read(5)
-        upload.file.seek(0)
-        return head == b"%PDF-"
-    except Exception:
-        return False
-
-@router.post("", response_model=dict)
-def upload_cv(
+@router.post("", response_model=schemas.CVRead)  # final path: POST /cvs
+async def upload_cv(
     file: UploadFile = File(...),
     db: Session = Depends(get_db),
-    user=Depends(get_current_user),
+    current_user: models.User = Depends(get_current_user),
 ):
-    if not _is_pdf(file):
-        raise HTTPException(status_code=400, detail="Le CV doit être en PDF")
+    if file is None:
+        raise HTTPException(status_code=400, detail="No file provided")
+    # 1) validate extension
+    dest_dir = Path("uploads") / "cv"
+    dest_dir.mkdir(parents=True, exist_ok=True)
 
-    os.makedirs(UPLOAD_DIR, exist_ok=True)
-    fname = f"{user.id}_{uuid.uuid4().hex}.pdf"  # force .pdf extension
-    dst = os.path.join(UPLOAD_DIR, fname)
+    suffix = Path(file.filename or "").suffix.lower()
+    if suffix not in {".pdf", ".docx", ".txt"}:
+        raise HTTPException(status_code=400, detail="Only PDF, DOCX or TXT files are accepted")
 
-    with open(dst, "wb") as out:
-        shutil.copyfileobj(file.file, out)
+    # 2) deterministic name & path
+    out_name = f"{current_user.id}_{uuid4().hex}{suffix}"
+    dest_path = dest_dir / out_name
 
-    cv = models.CV(user_id=user.id, file_path=dst)
-    cv.uploaded_at = datetime.now(tz=timezone.utc)  # ensure not None
-    db.add(cv); db.commit(); db.refresh(cv)
-    return {"id": cv.id, "file_path": cv.file_path, "uploaded_at": cv.uploaded_at.isoformat() if cv.uploaded_at else None}
+    # 3) async rewind + chunked copy
+    await file.seek(0)
+    bytes_written = 0
+    with dest_path.open("wb") as out:
+        while True:
+            chunk = await file.read(1024 * 1024)  # 1 MB
+            if not chunk:
+                break
+            out.write(chunk)
+            bytes_written += len(chunk)
+    await file.close()
 
-@router.get("", response_model=list[dict])
-def list_my_cvs(db: Session = Depends(get_db), user=Depends(get_current_user)):
-    rows = (
-        db.query(models.CV)
-        .filter(models.CV.user_id == user.id)
-        .order_by(models.CV.uploaded_at.desc())
-        .all()
+    # 4) zero-byte guard
+    if bytes_written == 0 or not dest_path.exists() or dest_path.stat().st_size == 0:
+        try:
+            dest_path.unlink(missing_ok=True)
+        except Exception:
+            pass
+        raise HTTPException(status_code=400, detail="Uploaded file is empty or unreadable")
+
+    # 5) normalize for DB
+    stored_path = str(dest_path).replace("\\", "/")
+
+    # 6) persist CV
+    cv = models.CV(
+        user_id=current_user.id,
+        file_path=stored_path,
+        uploaded_at=datetime.now(timezone.utc),
     )
-    return [{"id": r.id, "file_path": r.file_path, "uploaded_at": r.uploaded_at.isoformat() if r.uploaded_at else None} for r in rows]
+    db.add(cv)
+    db.commit()
+    db.refresh(cv)
+    return cv
 
-@router.get("/current", response_model=dict | None)
-def get_current_cv(db: Session = Depends(get_db), user=Depends(get_current_user)):
-    row = (
-        db.query(models.CV)
-        .filter(models.CV.user_id == user.id)
-        .order_by(models.CV.uploaded_at.desc())
-        .first()
-    )
-    if not row:
-        return None
-    return {"id": row.id, "file_path": row.file_path, "uploaded_at": row.uploaded_at.isoformat() if row.uploaded_at else None}
+@router.get("/current", response_model=schemas.CVRead)  # final path: GET /cvs/current
+async def get_current_cv(
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
+    cv = db.query(models.CV).filter(models.CV.user_id == current_user.id).order_by(models.CV.uploaded_at.desc()).first()
+    if not cv:
+        raise HTTPException(status_code=404, detail="No CV found")
+    return cv
+
+@router.get("/{cv_id}/download")  # final path: GET /cvs/{cv_id}/download
+async def download_cv(
+    cv_id: int,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
+    cv = db.query(models.CV).filter(models.CV.id == cv_id, models.CV.user_id == current_user.id).first()
+    if not cv:
+        raise HTTPException(status_code=404, detail="CV not found")
+    p = Path(cv.file_path)
+    if not p.exists():
+        raise HTTPException(status_code=404, detail="File not found")
+
+    # Display inline in the browser
+    headers = {"Content-Disposition": f'inline; filename="{p.name}"'}
+    return FileResponse(p, media_type="application/pdf", headers=headers)

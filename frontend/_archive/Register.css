@@ -1,0 +1,19 @@
+
+/* Modern Register Choice Design - Split Layout */
+.register-container {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: linear-gradient(135deg, rgba(0, 114, 188, 0.1), rgba(106, 27, 154, 0.1));
+  overflow: hidden;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .register-container {
+    padding: 16px;
+  }
+}

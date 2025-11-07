@@ -6,8 +6,8 @@
 
 /* Centered fixed columns */
 .jobsTheme .jobGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(var(--jobs-card-width), var(--jobs-card-width)));
+  display: flex;
+  flex-wrap: wrap;
   justify-content: center;
   gap: var(--jobs-gap);
 }
@@ -18,8 +18,7 @@
   max-width: 100%;
 }
 
-/* Mobile single column */
+/* Mobile responsive */
 @media (max-width: 640px){
-  .jobsTheme .jobGrid { grid-template-columns: 1fr; }
-  .jobsTheme .jobCard { width: 100%; }
+  .jobsTheme .jobCard { width: 75%; }
 }

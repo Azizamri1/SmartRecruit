@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+﻿import { useEffect, useRef } from "react";
 import lottie, { type AnimationItem } from "lottie-web";
 // import bgAnim from "../../assets/animations/background.json"; // <-- put your file here
 import "./BackgroundAnimation.css";
@@ -68,3 +68,4 @@ export default function BackgroundAnimation({
 
   return <div className={`bg-anim ${className}`} aria-hidden="true" ref={containerRef} />;
 }
+

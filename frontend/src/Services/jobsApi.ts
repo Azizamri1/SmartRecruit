@@ -1,4 +1,4 @@
-import api from "./apiClient";
+﻿import api from "./apiClient";
 
 export type JobDetail = {
   id: number;
@@ -28,9 +28,31 @@ export type JobDetail = {
   updated_at?: string | null;
   created_at?: string | null;
   owner_user_id?: number | null;
+  has_applied: boolean;                 // Whether the current user has applied
 };
 
 export const getJob = async (id: number) => {
   const res = await api.get<JobDetail>(`/jobs/${id}`);
   return res.data;
 };
+
+export const createJob = (payload: any) => api.post("/jobs", payload).then(r => r.data);
+
+// Helper function to coerce salary values to numbers
+const toNum = (v: any): number | null => {
+  if (v === null || v === undefined || v === "") return null;
+  if (typeof v === "number") return v;
+  if (typeof v === "string") {
+    const parsed = parseFloat(v);
+    return isNaN(parsed) ? null : parsed;
+  }
+  return null;
+};
+
+// Map job data with proper type coercion
+export const mapJob = (job: any): JobDetail => ({
+  ...job,
+  salary_min: toNum(job.salary_min),
+  salary_max: toNum(job.salary_max),
+});
+

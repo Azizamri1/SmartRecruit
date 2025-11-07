@@ -1,0 +1,15 @@
+.myspace { display: grid; gap: 16px; }
+.card { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); border-radius: 12px; padding: 16px; }
+.grid { display: grid; gap: 12px; }
+.grid--2 { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+.row { display: flex; align-items: center; }
+.row.gap { gap: 10px; }
+.wrap { flex-wrap: wrap; }
+.btn { appearance: none; border: 0; border-radius: 10px; padding: 10px 14px; font-weight: 600; cursor: pointer; background: rgba(255,255,255,0.12); }
+.btn--primary { background: #0B5AAA; color: #fff; }
+.alert { padding: 10px 12px; border-radius: 8px; }
+.alert--ok { background: rgba(10,150,10,.15); border:1px solid rgba(10,150,10,.35) }
+.alert--err { background: rgba(200,20,20,.15); border:1px solid rgba(200,20,20,.35) }
+label { display: grid; gap: 6px; }
+input, textarea {border-radius: 10px; border: 1px solid rgba(255,255,255,0.14); background: rgba(255,255,255,0.06); color: inherit; padding: 10px 12px; }
+h2,h3,h4 { margin-top: 0; }

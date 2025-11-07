@@ -1,13 +1,36 @@
-import { Link, NavLink, useNavigate } from "react-router-dom";
+﻿import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import "./Navbar.css";
 
 type User = {
   full_name?: string;
+  username?: string;     // â¬… add (backend may or may not send it)
+  email?: string;        // â¬… add (fallback)
   is_admin?: boolean;
   account_type?: "admin" | "company" | "candidate";
   company_name?: string | null;
 };
+
+// â¬‡ï¸ add this helper (top-level, above the component)
+function computeDisplayName(u: User | null): string {
+  if (!u) return "";
+
+  // Show company name for companies
+  if (u.account_type === "company" && u.company_name) return u.company_name;
+
+  // For candidates / non-company: prefer username, then full_name
+  if (u.username && u.username.trim()) return u.username.trim();
+  if (u.full_name && u.full_name.trim()) return u.full_name.trim();
+
+  // Fallback: email local-part if available
+  if (u.email && typeof u.email === "string" && u.email.includes("@")) {
+    const local = u.email.split("@")[0];
+    if (local) return local;
+  }
+
+  // Final fallback
+  return u.account_type === "company" ? "Entreprise" : "Compte";
+}
 
 export default function Navbar() {
   const navigate = useNavigate();
@@ -23,8 +46,10 @@ export default function Navbar() {
     }
   }, []);
 
-  const isCompany = !!(user?.account_type === "company" || user?.company_name);
+  const isCompany = user?.account_type === "company";
   const isAdmin = !!user?.is_admin;
+
+  const displayName = computeDisplayName(user); // â¬… derive once
 
   const logout = () => {
     localStorage.removeItem("token");
@@ -50,6 +75,9 @@ export default function Navbar() {
               <NavLink to="/admin/applications" className={({ isActive }) => (isActive ? "active" : "")} aria-label="Application Management">
                 Application Management
               </NavLink>
+              <NavLink to="/admin/jobs" className={({ isActive }) => (isActive ? "active" : "")} aria-label="Job Management">
+                Job Management
+              </NavLink>
               <NavLink to="/admin/create-job" className={({ isActive }) => (isActive ? "active" : "")} aria-label="Post a Job">
                 Post a Job
               </NavLink>
@@ -64,7 +92,7 @@ export default function Navbar() {
         {user ? (
           <div className="auth-menu">
             <button className="auth-trigger" onClick={() => setOpen(v => !v)}>
-              <span className="user-chip">{user.full_name ?? (isCompany ? user.company_name ?? "Entreprise" : "Compte")}</span>
+              <span className="user-chip">{displayName}</span>
             </button>
             {open && (
               <div className="auth-dropdown" onMouseLeave={() => setOpen(false)}>
@@ -100,3 +128,4 @@ export default function Navbar() {
     </header>
   );
 }
+

@@ -1,4 +1,4 @@
-// frontend/src/lib/chart.ts
+﻿// frontend/src/lib/chart.ts
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -26,3 +26,4 @@ export function ensureChartJSRegistered() {
   );
   registered = true;
 }
+

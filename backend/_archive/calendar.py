@@ -1,7 +1,8 @@
 from __future__ import annotations
-from datetime import datetime
-from email.utils import formatdate
+
 import uuid
+from datetime import datetime
+
 
 def build_ics(
     title: str,
@@ -16,7 +17,7 @@ def build_ics(
     Returns a minimal RFC5545 .ics string (UTC, REQUEST).
     """
     uid = f"{uuid.uuid4()}@smartrecruit"
-    dtstamp = formatdate(usegmt=True)  # e.g., 'Tue, 07 Oct 2025 09:00:00 GMT'
+
     def _fmt(dt: datetime) -> str:
         return dt.strftime("%Y%m%dT%H%M%SZ")  # UTC 'Z'
 
@@ -37,6 +38,6 @@ def build_ics(
         f"DESCRIPTION:{(description or '').replace('\\n','\\n')}",
         "END:VEVENT",
         "END:VCALENDAR",
-        ""
+        "",
     ]
     return "\r\n".join(lines)

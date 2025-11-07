@@ -1,4 +1,4 @@
-import api from "./apiClient";
+﻿import api from "./apiClient";
 
 interface LoginData {
   email: string;
@@ -18,3 +18,4 @@ export const register = (data: RegisterData) => api.post("/auth/register", data)
 export const login = (data: LoginData) => api.post<LoginResponse>("/auth/login", data);
 export const forgotPassword = (data: { email: string }) => api.post("/auth/forgot-password", data);
 export const getMe = () => api.get("/users/me");
+

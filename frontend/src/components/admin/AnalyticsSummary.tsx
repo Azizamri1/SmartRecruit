@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { Bar } from "react-chartjs-2";
 import { ensureChartJSRegistered } from "../../lib/chartjs";
 import api from "../../Services/apiClient";
@@ -60,33 +60,33 @@ export default function AnalyticsSummary() {
 
   return (
     <section className="analyticsSummary">
-      {/* KPIs */}
+      {/* KPI Dashboard Cards */}
       <div className="kpis">
-        <div className="card kpi">
-          <div className="kpi__label">Jobs</div>
+        <div className="kpi">
+          <div className="kpi__label">Total Jobs</div>
           <div className="kpi__value">{data.jobs ?? 0}</div>
         </div>
-        <div className="card kpi">
-          <div className="kpi__label">Open Jobs</div>
+        <div className="kpi">
+          <div className="kpi__label">Open Positions</div>
           <div className="kpi__value">{data.open_jobs ?? 0}</div>
         </div>
-        <div className="card kpi">
-          <div className="kpi__label">Applications</div>
+        <div className="kpi">
+          <div className="kpi__label">Total Applications</div>
           <div className="kpi__value">{data.applications ?? 0}</div>
         </div>
         {"avg_score" in data && (
-          <div className="card kpi">
-            <div className="kpi__label">Avg. Score</div>
-            <div className="kpi__value">{(data as any).avg_score?.toFixed?.(2) ?? "—"}</div>
+          <div className="kpi">
+            <div className="kpi__label">Average Score</div>
+            <div className="kpi__value">{(data as any).avg_score?.toFixed?.(1) ?? "—"}</div>
           </div>
         )}
       </div>
 
-      {/* By status pills if present */}
+      {/* Application Status Overview */}
       {data.by_status && (
-        <div className="card">
-          <div style={{marginBottom:8,opacity:.85}}>By status</div>
-          <div className="toolbar">
+        <div className="card_anal">
+          <div className="section-title">Application Status Overview</div>
+          <div className="pills">
             {Object.entries(data.by_status).map(([k,v]) => {
               const mod = statusMod(k);
               return (
@@ -99,64 +99,144 @@ export default function AnalyticsSummary() {
         </div>
       )}
 
-      {/* Top jobs + Recent apps (if provided by company summary) */}
+      {/* Detailed Analytics Tables */}
       <div className="gridTwo">
         {"top_jobs_by_apps" in (data as any) && (
-          <div className="card">
-            <h3 style={{margin:"4px 0 10px"}}>Top jobs (by applications)</h3>
-            <table className="table table--dense">
-              <thead>
-                <tr>
-                  <th>Job</th>
-                  <th>Applications</th>
-                </tr>
-              </thead>
-              <tbody>
-                {(data as any).top_jobs_by_apps?.map?.((row: any) => (
-                  <tr key={row.id}>
-                    <td>{row.title}</td>
-                    <td>{row.applications}</td>
+          <div className="card_anal">
+            <div className="section-title">Top Performing Jobs</div>
+            <div style={{overflow: 'hidden'}}>
+              <table className="table">
+                <thead>
+                  <tr>
+                    <th>Job Title</th>
+                    <th style={{textAlign: 'center'}}>Applications</th>
                   </tr>
-                )) || null}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {(data as any).top_jobs_by_apps?.map?.((row: any) => (
+                    <tr key={row.id}>
+                      <td style={{fontWeight: '500'}}>{row.title}</td>
+                      <td style={{textAlign: 'center', fontWeight: '600', color: '#1db954'}}>{row.applications}</td>
+                    </tr>
+                  )) || null}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
 
         {"recent_applications" in (data as any) && (
-          <div className="card">
-            <h3 style={{margin:"4px 0 10px"}}>Recent applications</h3>
-            <table className="table table--dense">
-              <thead><tr><th>Candidate</th><th>Job</th><th>Score</th><th>Status</th><th>Date</th></tr></thead>
-              <tbody>
-                {(data as any).recent_applications?.map?.((r: any, i: number) => (
-                  <tr key={i}>
-                    <td>{r.candidate_email ?? "—"}</td>
-                    <td>{r.job_title ?? "—"}</td>
-                    <td>{r.score ?? "—"}</td>
-                    <td>
-                      <span className={`pill pill--${statusMod(r.status)}`}>
-                        {formatStatusLabel(r.status)}
-                      </span>
-                    </td>
-                    <td>{r.applied_at ? new Date(r.applied_at).toLocaleDateString() : "—"}</td>
+          <div className="card_anal">
+            <div className="section-title">Recent Applications</div>
+            <div style={{overflow: 'hidden'}}>
+              <table className="table">
+                <thead>
+                  <tr>
+                    <th>Candidate</th>
+                    <th>Position</th>
+                    <th style={{textAlign: 'center'}}>Score</th>
+                    <th style={{textAlign: 'center'}}>Status</th>
+                    <th style={{textAlign: 'center'}}>Date</th>
                   </tr>
-                )) || null}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {(data as any).recent_applications?.map?.((r: any, i: number) => (
+                    <tr key={i}>
+                      <td style={{fontWeight: '500'}}>{r.candidate_email ?? "—"}</td>
+                      <td>{r.job_title ?? "—"}</td>
+                      <td style={{textAlign: 'center', fontWeight: '600'}}>
+                        {r.score ? `${r.score}%` : "—"}
+                      </td>
+                      <td style={{textAlign: 'center'}}>
+                        <span className={`pill pill--${statusMod(r.status)}`}>
+                          {formatStatusLabel(r.status)}
+                        </span>
+                      </td>
+                      <td style={{textAlign: 'center', color: 'rgba(255,255,255,0.7)'}}>
+                        {r.applied_at ? new Date(r.applied_at).toLocaleDateString() : "—"}
+                      </td>
+                    </tr>
+                  )) || null}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
       </div>
 
-      {/* 30-day histogram (if present) */}
+      {/* Application Trend Chart */}
       {!!trend.length && (
-        <div className="card">
-          <h3 style={{margin:"4px 0 12px"}}>Application volume — last 30 days</h3>
+        <div className="card_anal">
+          <div className="section-title">Application Trends</div>
           <div className="chartBox">
-            <Bar key={labels.join("|")} data={barData} options={{responsive:true,maintainAspectRatio:false}} redraw />
+            <Bar
+              key={labels.join("|")}
+              data={{
+                labels,
+                datasets: [{
+                  label: "Applications",
+                  data: counts,
+                  backgroundColor: 'rgba(0, 114, 188, 0.6)', // Transparent blue
+                  borderColor: 'rgba(0, 114, 188, 0.8)',
+                  borderWidth: 2,
+                  borderRadius: 8,
+                  hoverBackgroundColor: 'rgba(0, 114, 188, 0.8)',
+                  hoverBorderColor: 'rgba(0, 114, 188, 1)',
+                }]
+              }}
+              options={{
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                  legend: {
+                    labels: {
+                      color: 'rgba(255, 255, 255, 0.9)',
+                      font: { size: 12 },
+                      padding: 20,
+                      usePointStyle: true,
+                    }
+                  },
+                  tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    titleColor: '#ffffff',
+                    bodyColor: '#ffffff',
+                    borderColor: 'rgba(0, 114, 188, 0.5)',
+                    borderWidth: 1,
+                    cornerRadius: 8,
+                    displayColors: true,
+                  }
+                },
+                scales: {
+                  x: {
+                    ticks: {
+                      color: 'rgba(255, 255, 255, 0.8)',
+                      font: { size: 11 }
+                    },
+                    grid: {
+                      color: 'rgba(255, 255, 255, 0.08)'
+                    }
+                  },
+                  y: {
+                    ticks: {
+                      color: 'rgba(255, 255, 255, 0.8)',
+                      font: { size: 11 }
+                    },
+                    grid: {
+                      color: 'rgba(255, 255, 255, 0.08)'
+                    },
+                    beginAtZero: true
+                  }
+                },
+                animation: {
+                  duration: 1500,
+                  easing: 'easeOutQuart'
+                }
+              }}
+            />
           </div>
         </div>
       )}
     </section>
   );
 }
+

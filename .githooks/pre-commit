@@ -1,0 +1,6 @@
+﻿#!/usr/bin/env bash
+set -e
+if [ -f package.json ] || [ -d node_modules ]; then
+  echo "Refusing commit: found root Node artifacts. Use frontend/ only." >&2
+  exit 1
+fi
