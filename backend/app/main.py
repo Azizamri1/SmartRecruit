@@ -128,16 +128,22 @@ def warmup_ai():
         return {"error": f"Failed to warm up AI models: {str(e)}"}
 
 @app.post("/test-email")
-async def test_email():
+def test_email():
     """Test email functionality with sample data."""
-    from app.services.email_service import send_status_email
+    from .services.email_service import send_email, tpl_decision
     try:
-        await send_status_email(
-            recipient="henrylone18@gmail.com",
+        subj, html, txt = tpl_decision(
+            candidate_name="Test User",
+            job_title="Test Job",
             status="accepted",
-            full_name="Test User"
+            company_name="Test Company",
+            next_steps_url=None,
         )
-        return {"message": "Email sent successfully"}
+        success = send_email("henrylone18@gmail.com", subj, html, txt)
+        if success:
+            return {"message": "Email sent successfully"}
+        else:
+            return {"error": "Failed to send email"}
     except Exception as e:
         import traceback
         error_details = traceback.format_exc()

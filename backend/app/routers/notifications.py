@@ -1,11 +1,11 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import EmailStr
-from ..services.email_service import send_status_email
+from ..services.email_service import send_email, tpl_decision
 
 router = APIRouter()
 
 @router.post("/test/email")
-async def test_email(
+def test_email(
     recipient: EmailStr = "test@example.com",
     status: str = "accepted",
     full_name: str = "Test User"
@@ -18,7 +18,17 @@ async def test_email(
         raise HTTPException(status_code=400, detail="Invalid status")
 
     try:
-        await send_status_email(recipient, status, full_name)
-        return {"message": "Test email sent successfully"}
+        subj, html, txt = tpl_decision(
+            candidate_name=full_name,
+            job_title="Test Job",
+            status=status,
+            company_name="Test Company",
+            next_steps_url=None,
+        )
+        success = send_email(recipient, subj, html, txt)
+        if success:
+            return {"message": "Test email sent successfully"}
+        else:
+            raise HTTPException(status_code=500, detail="Failed to send email")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to send email: {str(e)}")

@@ -7,10 +7,14 @@ from ..services.ai_service import score_cv_to_job, score_components, parse_profi
 # import relative
 from ..deps import get_db, get_current_user
 from .. import models, schemas
+from ..config import settings
 from datetime import datetime, timezone
 from pathlib import Path
 import re
+import logging
 from ..services.email_service import send_email, tpl_submission, tpl_decision
+
+logger = logging.getLogger(__name__)
 
 # helper to normalize any shape -> list[str]
 def _as_list(value):
@@ -154,7 +158,19 @@ def create_application(payload: schemas.ApplicationCreate,
 
     # send submission email (background)
     try:
-        subj, html, txt = tpl_submission(user.email, job.title)
+        from ..services.email_service import send_email, tpl_submission, applicant_display_name
+        company = getattr(job, "company_name", None)
+        app_url = (f"{settings.FRONTEND_BASE_URL}/applications/{app.id}"
+                   if getattr(settings, "FRONTEND_BASE_URL", None) else None)
+        name = applicant_display_name(user=user, application=app)
+
+        subj, html, txt = tpl_submission(
+            candidate_name=name,
+            job_title=job.title,
+            company_name=company,
+            application_url=app_url,
+        )
+        logger.info("applications.create: enqueue email to candidate", extra={"app_id": app.id, "to": user.email})
         background.add_task(send_email, user.email, subj, html, txt)
     except Exception as e:
         print("[EMAIL][submission] enqueue failed:", e)
@@ -218,9 +234,21 @@ def update_application_status(application_id: int, payload: dict,
 
     # email candidate (background)
     try:
+        from ..services.email_service import send_email, tpl_decision, applicant_display_name
         candidate = db.query(models.User).get(app.user_id)
         if candidate and candidate.email:
-            subj, html, txt = tpl_decision(candidate.email, job.title, new_status)
+            name = applicant_display_name(user=candidate, application=app)
+            next_steps = (f"{settings.FRONTEND_BASE_URL}/onboarding/{app.id}"
+                          if new_status == "accepted" and getattr(settings, "FRONTEND_BASE_URL", None) else None)
+
+            subj, html, txt = tpl_decision(
+                candidate_name=name,
+                job_title=job.title,
+                status=new_status,
+                company_name=getattr(job, "company_name", None),
+                next_steps_url=next_steps,
+            )
+            logger.info("applications.status: enqueue decision email", extra={"app_id": app.id, "to": candidate.email, "status": new_status})
             background.add_task(send_email, candidate.email, subj, html, txt)
     except Exception as e:
         print("[EMAIL][decision] enqueue failed:", e)
